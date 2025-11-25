@@ -1,3 +1,4 @@
+
 export enum ModuleType {
   RESOURCE = 'Ressource',
   SAE = 'SAÉ'
@@ -20,6 +21,8 @@ export interface Competence {
   name: string; // e.g., "Comprendre"
   color: string;
   ects: number; // ECTS credits
+  resourceCoefficient: number; // Coefficient for the Resource Pole average
+  saeCoefficient: number; // Coefficient for the SAE Pole average
 }
 
 export interface SemesterData {

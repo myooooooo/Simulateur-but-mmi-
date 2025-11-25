@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
@@ -6,12 +7,12 @@ import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Save,
 
 // --- Utility functions ---
 
-const calculateCompetenceAverage = (comp: Competence, semester: SemesterData, grades: GradeMap) => {
+const calculateWeightedAverage = (modules: any[], compId: string, grades: GradeMap) => {
   let totalScore = 0;
   let totalCoeff = 0;
 
-  semester.modules.forEach(mod => {
-    const weighting = mod.weightings.find(w => w.competenceId === comp.id);
+  modules.forEach(mod => {
+    const weighting = mod.weightings.find((w: any) => w.competenceId === compId);
     if (weighting) {
       const grade = grades[mod.id];
       if (grade !== undefined) {
@@ -21,8 +22,36 @@ const calculateCompetenceAverage = (comp: Competence, semester: SemesterData, gr
     }
   });
 
-  if (totalCoeff === 0) return 0;
+  if (totalCoeff === 0) return null; // No grades entered for this pole
   return parseFloat((totalScore / totalCoeff).toFixed(2));
+};
+
+const calculateCompetenceAverage = (comp: Competence, semester: SemesterData, grades: GradeMap) => {
+  const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE);
+  const saes = semester.modules.filter(m => m.type === ModuleType.SAE);
+
+  const avgResources = calculateWeightedAverage(resources, comp.id, grades);
+  const avgSAE = calculateWeightedAverage(saes, comp.id, grades);
+
+  // Logic: 
+  // Final = (AvgRes * CoeffRes + AvgSAE * CoeffSAE) / (CoeffRes + CoeffSAE)
+  
+  let finalScore = 0;
+  let finalCoeff = 0;
+
+  if (avgResources !== null) {
+      finalScore += avgResources * comp.resourceCoefficient;
+      finalCoeff += comp.resourceCoefficient;
+  }
+  
+  if (avgSAE !== null) {
+      finalScore += avgSAE * comp.saeCoefficient;
+      finalCoeff += comp.saeCoefficient;
+  }
+
+  if (finalCoeff === 0) return 0;
+
+  return parseFloat((finalScore / finalCoeff).toFixed(2));
 };
 
 const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap) => {
@@ -228,14 +257,14 @@ const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, onJson, onPd
             </button>
 
             <button
-              onClick={onPdf}
-              className="flex flex-col items-center justify-center p-6 bg-white border-2 border-slate-200 rounded-xl hover:border-red-500 hover:bg-red-50 hover:text-red-700 transition-all group shadow-sm"
+              disabled={true}
+              className="flex flex-col items-center justify-center p-6 bg-slate-50 border-2 border-slate-200 rounded-xl opacity-50 grayscale cursor-not-allowed group shadow-sm"
             >
-              <div className="p-4 bg-red-100 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                <FileText className="w-8 h-8 text-red-600" />
+              <div className="p-4 bg-slate-200 rounded-full mb-3">
+                <FileText className="w-8 h-8 text-slate-400" />
               </div>
-              <span className="font-bold text-slate-800 group-hover:text-red-800">Bulletin PDF</span>
-              <span className="text-[10px] text-slate-400 mt-1">Version imprimable</span>
+              <span className="font-bold text-slate-400">Bulletin PDF</span>
+              <span className="text-[10px] text-slate-400 mt-1">Version imprimable (Bientôt)</span>
             </button>
           </div>
         </div>
@@ -253,9 +282,13 @@ interface CompetenceCardProps {
 
 const CompetenceCard: React.FC<CompetenceCardProps> = ({ comp, semester, grades, onGradeChange }) => {
   const average = calculateCompetenceAverage(comp, semester, grades);
+  
   const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE && m.weightings.some(w => w.competenceId === comp.id));
   const saes = semester.modules.filter(m => m.type === ModuleType.SAE && m.weightings.some(w => w.competenceId === comp.id));
   
+  const avgResources = calculateWeightedAverage(resources, comp.id, grades);
+  const avgSAE = calculateWeightedAverage(saes, comp.id, grades);
+
   const isEliminatory = average < 8 && Object.keys(grades).some(id => 
     semester.modules.find(m => m.id === id)?.weightings.some(w => w.competenceId === comp.id)
   );
@@ -265,21 +298,38 @@ const CompetenceCard: React.FC<CompetenceCardProps> = ({ comp, semester, grades,
       <div className="px-6 py-4 flex justify-between items-center bg-white relative print:border-b print:border-slate-100 print:bg-slate-50">
         <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: comp.color }}></div>
         
-        <div>
+        <div className="flex-1">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <span className="px-2 py-0.5 rounded text-sm text-white bg-slate-800 font-mono print:text-black print:border print:border-slate-800 print:bg-transparent">{comp.id}</span>
             {comp.name}
           </h3>
-          <span className="text-xs text-slate-500 font-medium uppercase tracking-wide flex items-center gap-2 print:hidden">
+          <span className="text-xs text-slate-500 font-medium uppercase tracking-wide flex items-center gap-2 print:hidden mt-1">
             {isEliminatory && (
               <span className="text-rose-600 font-bold flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" /> Éliminatoire
               </span>
             )}
-            {!isEliminatory && <span>Coefficients & Notes</span>}
           </span>
         </div>
-        <div className="text-right">
+        
+        {/* Intermediate Averages Badges */}
+        <div className="hidden md:flex items-center gap-3 mr-6">
+           <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ressources (Coeff {comp.resourceCoefficient})</span>
+              <span className={`text-sm font-bold ${avgResources !== null ? (avgResources >= 10 ? 'text-emerald-600' : 'text-amber-600') : 'text-slate-300'}`}>
+                 {avgResources !== null ? avgResources : '-'}
+              </span>
+           </div>
+           <div className="w-px h-6 bg-slate-200"></div>
+           <div className="flex flex-col items-end">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SAÉ (Coeff {comp.saeCoefficient})</span>
+              <span className={`text-sm font-bold ${avgSAE !== null ? (avgSAE >= 10 ? 'text-emerald-600' : 'text-amber-600') : 'text-slate-300'}`}>
+                 {avgSAE !== null ? avgSAE : '-'}
+              </span>
+           </div>
+        </div>
+
+        <div className="text-right pl-4 border-l border-slate-100">
            <div className={`text-2xl font-black ${average >= 10 ? 'text-emerald-600' : average < 8 ? 'text-rose-600' : 'text-amber-500'} print:text-black`}>
              {average} <span className="text-sm font-normal text-slate-400 print:text-slate-600">/20</span>
            </div>
@@ -292,6 +342,7 @@ const CompetenceCard: React.FC<CompetenceCardProps> = ({ comp, semester, grades,
           <div>
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2 print:text-slate-600">
               <div className="w-1.5 h-1.5 rounded-full bg-slate-400 print:border print:border-slate-600 print:bg-transparent"></div> Ressources
+              {avgResources !== null && <span className="md:hidden ml-auto text-slate-600">{avgResources}/20</span>}
             </h4>
             <div className="space-y-3 print:space-y-2">
               {resources.map(mod => {
@@ -329,6 +380,7 @@ const CompetenceCard: React.FC<CompetenceCardProps> = ({ comp, semester, grades,
           <div>
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2 print:text-slate-600">
                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 print:border print:border-slate-600 print:bg-transparent"></div> SAÉ
+               {avgSAE !== null && <span className="md:hidden ml-auto text-blue-600">{avgSAE}/20</span>}
             </h4>
             <div className="space-y-3 print:space-y-2">
               {saes.map(mod => {

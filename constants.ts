@@ -1,3 +1,4 @@
+
 import { SemesterData, ModuleType, Track } from './types';
 
 // Helper to define colors for competencies
@@ -15,11 +16,11 @@ const S1: SemesterData = {
   id: 'S1',
   name: 'Semestre 1 (Tronc Commun)',
   competencies: [
-    { id: 'C1.1', name: 'Comprendre', color: COLORS[0], ects: 5 },
-    { id: 'C1.2', name: 'Concevoir', color: COLORS[1], ects: 6 },
-    { id: 'C1.3', name: 'Exprimer', color: COLORS[2], ects: 8 },
-    { id: 'C1.4', name: 'Développer', color: COLORS[3], ects: 8 },
-    { id: 'C1.5', name: 'Entreprendre', color: COLORS[4], ects: 3 },
+    { id: 'C1.1', name: 'Comprendre', color: COLORS[0], ects: 5, resourceCoefficient: 12.5, saeCoefficient: 9 },
+    { id: 'C1.2', name: 'Concevoir', color: COLORS[1], ects: 6, resourceCoefficient: 7.5, saeCoefficient: 6 },
+    { id: 'C1.3', name: 'Exprimer', color: COLORS[2], ects: 8, resourceCoefficient: 17.5, saeCoefficient: 14 },
+    { id: 'C1.4', name: 'Développer', color: COLORS[3], ects: 8, resourceCoefficient: 12.5, saeCoefficient: 12 },
+    { id: 'C1.5', name: 'Entreprendre', color: COLORS[4], ects: 3, resourceCoefficient: 12, saeCoefficient: 10 },
   ],
   modules: [
     {
@@ -156,11 +157,11 @@ const S2: SemesterData = {
   id: 'S2',
   name: 'Semestre 2 (Tronc Commun)',
   competencies: [
-    { id: 'C2.1', name: 'Comprendre', color: COLORS[0], ects: 4 },
-    { id: 'C2.2', name: 'Concevoir', color: COLORS[1], ects: 4 },
-    { id: 'C2.3', name: 'Exprimer', color: COLORS[2], ects: 9 },
-    { id: 'C2.4', name: 'Développer', color: COLORS[3], ects: 9 },
-    { id: 'C2.5', name: 'Entreprendre', color: COLORS[4], ects: 4 },
+    { id: 'C2.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 7.5, saeCoefficient: 5 },
+    { id: 'C2.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 8.5, saeCoefficient: 6 },
+    { id: 'C2.3', name: 'Exprimer', color: COLORS[2], ects: 9, resourceCoefficient: 18.5, saeCoefficient: 13 },
+    { id: 'C2.4', name: 'Développer', color: COLORS[3], ects: 9, resourceCoefficient: 16.5, saeCoefficient: 13 },
+    { id: 'C2.5', name: 'Entreprendre', color: COLORS[4], ects: 4, resourceCoefficient: 14, saeCoefficient: 10 },
   ],
   modules: [
     {
@@ -271,11 +272,11 @@ const S3_DEV: SemesterData = {
   id: 'S3-DEV',
   name: 'Semestre 3 (Dev)',
   competencies: [
-    { id: 'C3.1', name: 'Comprendre', color: COLORS[0], ects: 4 },
-    { id: 'C3.2', name: 'Concevoir', color: COLORS[1], ects: 4 },
-    { id: 'C3.3', name: 'Exprimer', color: COLORS[2], ects: 8 },
-    { id: 'C3.4', name: 'Développer', color: COLORS[3], ects: 8 },
-    { id: 'C3.5', name: 'Entreprendre', color: COLORS[4], ects: 6 },
+    { id: 'C3.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 7.5, saeCoefficient: 6 },
+    { id: 'C3.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 7.5, saeCoefficient: 5 },
+    { id: 'C3.3', name: 'Exprimer', color: COLORS[2], ects: 8, resourceCoefficient: 19.5, saeCoefficient: 12 },
+    { id: 'C3.4', name: 'Développer', color: COLORS[3], ects: 8, resourceCoefficient: 16.5, saeCoefficient: 12 },
+    { id: 'C3.5', name: 'Entreprendre', color: COLORS[4], ects: 6, resourceCoefficient: 12, saeCoefficient: 10 },
   ],
   modules: [
     { id: 'S3-DEV-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C3.3', coefficient: 1 }, { competenceId: 'C3.4', coefficient: 2 }] },
@@ -307,11 +308,11 @@ const S4_DEV: SemesterData = {
   id: 'S4-DEV',
   name: 'Semestre 4 (Dev)',
   competencies: [
-    { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4 },
-    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4 },
-    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 6 },
-    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 10 },
-    { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6 },
+    { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 4, saeCoefficient: 6 },
+    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 4, saeCoefficient: 6 },
+    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 6, resourceCoefficient: 8, saeCoefficient: 12 },
+    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 10, resourceCoefficient: 16, saeCoefficient: 24 },
+    { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6, resourceCoefficient: 6, saeCoefficient: 8 },
   ],
   modules: [
     { id: 'S4-DEV-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.2', coefficient: 1 }, { competenceId: 'C4.5', coefficient: 2 }] },
@@ -334,8 +335,8 @@ const S5_DEV: SemesterData = {
   id: 'S5-DEV',
   name: 'Semestre 5 (Dev)',
   competencies: [
-    { id: 'C5.4', name: 'Développer', color: COLORS[3], ects: 20 },
-    { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10 },
+    { id: 'C5.4', name: 'Développer', color: COLORS[3], ects: 20, resourceCoefficient: 10, saeCoefficient: 10 },
+    { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 4, saeCoefficient: 4 },
   ],
   modules: [
     { id: 'S5-DEV-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C5.4', coefficient: 1 }, { competenceId: 'C5.5', coefficient: 1 }] },
@@ -355,8 +356,8 @@ const S6_DEV: SemesterData = {
   id: 'S6-DEV',
   name: 'Semestre 6 (Dev)',
   competencies: [
-    { id: 'C6.4', name: 'Développer', color: COLORS[3], ects: 20 },
-    { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10 },
+    { id: 'C6.4', name: 'Développer', color: COLORS[3], ects: 20, resourceCoefficient: 2, saeCoefficient: 2 },
+    { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 2, saeCoefficient: 2 },
   ],
   modules: [
     { id: 'S6-DEV-R1', name: 'Entrepreneuriat', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C6.5', coefficient: 1 }] },
@@ -371,16 +372,15 @@ const S6_DEV: SemesterData = {
 // PARCOURS: CRÉATION NUMÉRIQUE
 // ==========================================
 
-// Note: S3 CN and S3 Strat appear identical in modules/coeffs. Sharing S3 structure.
 const S3_CN_STRAT: SemesterData = {
   id: 'S3-CN',
   name: 'Semestre 3',
   competencies: [
-    { id: 'C3.1', name: 'Comprendre', color: COLORS[0], ects: 4 },
-    { id: 'C3.2', name: 'Concevoir', color: COLORS[1], ects: 4 },
-    { id: 'C3.3', name: 'Exprimer', color: COLORS[2], ects: 8 },
-    { id: 'C3.4', name: 'Développer', color: COLORS[3], ects: 8 },
-    { id: 'C3.5', name: 'Entreprendre', color: COLORS[4], ects: 6 },
+    { id: 'C3.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 7.5, saeCoefficient: 6 },
+    { id: 'C3.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 7.5, saeCoefficient: 5 },
+    { id: 'C3.3', name: 'Exprimer', color: COLORS[2], ects: 8, resourceCoefficient: 19.5, saeCoefficient: 12 },
+    { id: 'C3.4', name: 'Développer', color: COLORS[3], ects: 8, resourceCoefficient: 16.5, saeCoefficient: 12 },
+    { id: 'C3.5', name: 'Entreprendre', color: COLORS[4], ects: 6, resourceCoefficient: 12, saeCoefficient: 10 },
   ],
   modules: [
     { id: 'S3-CN-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C3.4', coefficient: 1 }, { competenceId: 'C3.5', coefficient: 2 }] },
@@ -412,11 +412,11 @@ const S4_CN: SemesterData = {
   id: 'S4-CN',
   name: 'Semestre 4 (Créa)',
   competencies: [
-    { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4 },
-    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4 },
-    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 10 },
-    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 6 },
-    { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6 },
+    { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 8, saeCoefficient: 10 },
+    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 8, saeCoefficient: 12 },
+    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 10, resourceCoefficient: 22, saeCoefficient: 28 },
+    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 6, resourceCoefficient: 8, saeCoefficient: 12 },
+    { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6, resourceCoefficient: 12, saeCoefficient: 12 },
   ],
   modules: [
     { id: 'S4-CN-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.3', coefficient: 4 }, { competenceId: 'C4.5', coefficient: 3 }] },
@@ -439,8 +439,8 @@ const S5_CN: SemesterData = {
   id: 'S5-CN',
   name: 'Semestre 5 (Créa)',
   competencies: [
-    { id: 'C5.3', name: 'Exprimer', color: COLORS[2], ects: 20 },
-    { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10 },
+    { id: 'C5.3', name: 'Exprimer', color: COLORS[2], ects: 20, resourceCoefficient: 10, saeCoefficient: 10 },
+    { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 4, saeCoefficient: 4 },
   ],
   modules: [
     { id: 'S5-CN-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C5.3', coefficient: 1 }, { competenceId: 'C5.5', coefficient: 1 }] },
@@ -459,8 +459,8 @@ const S6_CN: SemesterData = {
   id: 'S6-CN',
   name: 'Semestre 6 (Créa)',
   competencies: [
-    { id: 'C6.3', name: 'Exprimer', color: COLORS[2], ects: 20 },
-    { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10 },
+    { id: 'C6.3', name: 'Exprimer', color: COLORS[2], ects: 20, resourceCoefficient: 2, saeCoefficient: 2 },
+    { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 2, saeCoefficient: 2 },
   ],
   modules: [
     { id: 'S6-CN-R1', name: 'Entrepreneuriat', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C6.5', coefficient: 1 }] },
@@ -482,11 +482,11 @@ const S4_STRAT: SemesterData = {
   id: 'S4-STRAT',
   name: 'Semestre 4 (Strat)',
   competencies: [
-    { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 6 },
-    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 8 },
-    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 5 },
-    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 5 },
-    { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6 },
+    { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 6, resourceCoefficient: 5, saeCoefficient: 6 },
+    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 8, resourceCoefficient: 12, saeCoefficient: 12 },
+    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 5, resourceCoefficient: 4, saeCoefficient: 6 },
+    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 5, resourceCoefficient: 6, saeCoefficient: 6 },
+    { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6, resourceCoefficient: 6, saeCoefficient: 6 },
   ],
   modules: [
     { id: 'S4-STRAT-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.2', coefficient: 2 }, { competenceId: 'C4.5', coefficient: 2 }] },
@@ -508,8 +508,8 @@ const S5_STRAT: SemesterData = {
   id: 'S5-STRAT',
   name: 'Semestre 5 (Strat)',
   competencies: [
-    { id: 'C5.2', name: 'Concevoir', color: COLORS[1], ects: 20 },
-    { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10 },
+    { id: 'C5.2', name: 'Concevoir', color: COLORS[1], ects: 20, resourceCoefficient: 11, saeCoefficient: 8 },
+    { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 4, saeCoefficient: 4 },
   ],
   modules: [
     { id: 'S5-STRAT-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C5.2', coefficient: 1 }, { competenceId: 'C5.5', coefficient: 1 }] },
@@ -528,8 +528,8 @@ const S6_STRAT: SemesterData = {
   id: 'S6-STRAT',
   name: 'Semestre 6 (Strat)',
   competencies: [
-    { id: 'C6.2', name: 'Concevoir', color: COLORS[1], ects: 20 },
-    { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10 },
+    { id: 'C6.2', name: 'Concevoir', color: COLORS[1], ects: 20, resourceCoefficient: 2, saeCoefficient: 2 },
+    { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 3, saeCoefficient: 2 },
   ],
   modules: [
     { id: 'S6-STRAT-R1', name: 'Entrepreneuriat', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C6.5', coefficient: 1 }] },
