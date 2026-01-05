@@ -5,34 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Simulateur BUT MMI</title>
     
+    <!-- PWA / Mobile Web App Capable Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Simulateur MMI">
     <meta name="format-detection" content="telephone=no">
     <meta name="theme-color" content="#2196F3">
     
+    <!-- Icons (Using a placeholder service for the demo, replace with local assets for prod) -->
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=S+M&background=2196F3&color=fff&rounded=true&bold=true&size=180">
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=S+M&background=2196F3&color=fff&rounded=true&bold=true&size=32">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
       body {
         font-family: 'Inter', sans-serif;
+        /* Prevent bounce scroll on iOS */
         overscroll-behavior-y: none;
       }
       
-      .print-only { display: none; }
+      /* Hide print-only elements on screen by default */
+      .print-only {
+        display: none;
+      }
       
       @media print {
-        @page { margin: 1.5cm; size: A4; }
+        @page {
+          margin: 1.5cm;
+          size: A4;
+        }
+        
+        /* Force background colors */
         body {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           background-color: white !important;
           color: black !important;
         }
+
+        /* Essential resets to allow multi-page printing */
         html, body, #root, main, .print-container {
             height: auto !important;
             min-height: 0 !important;
@@ -43,16 +55,28 @@
             margin: 0 !important;
             padding: 0 !important;
         }
+
+        /* Hide interactive elements */
         .no-print, #sidebar, #mobile-header, .print-hidden, header, .recharts-wrapper, .print-hide-scroll {
             display: none !important;
         }
-        .print-only { display: block !important; }
-        .lg\:grid-cols-3 { display: block !important; }
+
+        /* Show print specific elements */
+        .print-only {
+            display: block !important;
+        }
+        
+        /* Grid adjustments for print linear layout */
+        .lg\:grid-cols-3 {
+            display: block !important;
+        }
         .lg\:col-span-2, .lg\:col-span-1 {
             width: 100% !important;
             margin-bottom: 2rem !important;
             page-break-inside: avoid;
         }
+
+        /* Card styling for print */
         .rounded-xl {
             border-radius: 4px !important;
             border: 1px solid #e2e8f0 !important;
@@ -60,17 +84,34 @@
             margin-bottom: 1rem !important;
             break-inside: avoid;
         }
-        h1, h2, h3, h4, .text-slate-900, .text-slate-800 { color: black !important; }
+
+        /* Typography fixes */
+        h1, h2, h3, h4, .text-slate-900, .text-slate-800 {
+            color: black !important;
+        }
+        
+        /* Page break management */
         .break-inside-avoid {
           break-inside: avoid;
           page-break-inside: avoid;
         }
       }
     </style>
-    </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.0"
+  }
+}
+</script>
+</head>
   <body class="bg-slate-50 text-slate-900 selection:bg-blue-100 selection:text-blue-900">
     <div id="root"></div>
-    
     <script type="module" src="./index.tsx"></script>
+
   </body>
 </html>
