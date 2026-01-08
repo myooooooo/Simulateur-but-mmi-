@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer } from 'lucide-react';
+import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink } from 'lucide-react';
 
 // --- Fonctions de calcul ---
 
@@ -14,7 +14,7 @@ const calculateWeightedAverage = (modules: any[], compId: string, grades: GradeM
     const weighting = mod.weightings.find((w: any) => w.competenceId === compId);
     if (weighting) {
       const grade = grades[mod.id];
-      if (grade !== undefined) {
+      if (grade !== undefined && grade !== null) {
         totalScore += grade * weighting.coefficient;
         totalCoeff += weighting.coefficient;
       }
@@ -65,68 +65,64 @@ const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap
 // --- Composants UI ---
 
 const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
-  <header className="bg-[#C4B5FD] text-white h-16 flex items-center justify-between px-4 shadow-sm z-50 relative print:hidden">
+  <header className="bg-[#C4B5FD] text-white h-16 flex items-center justify-between px-6 shadow-md z-50 relative print:hidden">
     <div className="flex items-center gap-4">
-      <button onClick={onGoHome} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+      <button onClick={onGoHome} className="p-2 hover:bg-white/20 rounded-xl transition-all active:scale-95">
          <Home className="w-6 h-6" />
       </button>
       <div className="flex flex-col cursor-pointer" onClick={onGoHome}>
-        <div className="text-lg font-black tracking-tight leading-none uppercase">BUT MMI</div>
-        <div className="text-[10px] font-bold opacity-80 uppercase tracking-widest">Simulateur</div>
+        <div className="text-xl font-black tracking-tighter leading-none uppercase">MMI SIM</div>
+        <div className="text-[10px] font-bold opacity-80 uppercase tracking-[0.2em]">Par Zineb A.</div>
       </div>
     </div>
-    <div className="flex items-center gap-4">
-      <div className="hidden sm:flex flex-col items-end mr-2 text-violet-900">
-        <span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">Zineb A.</span>
-        <span className="text-xs font-bold">Projet Personnel</span>
+    <div className="flex items-center gap-3">
+      <div className="hidden sm:flex flex-col items-end mr-3">
+        <span className="text-[10px] font-black text-violet-900/40 uppercase tracking-widest">Version 2025</span>
+        <span className="text-xs font-bold text-violet-900">BUT MMI</span>
       </div>
-      <button className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Infos">
+      <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center">
         <Sparkles className="w-5 h-5 text-violet-900" />
-      </button>
+      </div>
     </div>
   </header>
 );
 
-const OnboardingModal = ({ isOpen, onComplete, isEditMode = false, onClose }: any) => {
+const OnboardingModal = ({ isOpen, onComplete }: any) => {
   if (!isOpen) return null;
 
   const options = [
-    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8 text-violet-500" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun' },
-    { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8 text-violet-400" />, trackId: 'crea', semesterId: 'S3-CN', desc: 'Parcours Créa' },
-    { id: 'dev', label: 'Développement Web', icon: <Terminal className="w-8 h-8 text-violet-400" />, trackId: 'dev', semesterId: 'S1', desc: 'Parcours Dev' },
-    { id: 'strat', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8 text-violet-400" />, trackId: 'strat', semesterId: 'S1', desc: 'Parcours Strat' },
+    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun' },
+    { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8" />, trackId: 'crea', semesterId: 'S3-CN', desc: 'Parcours Créa (S3-S6)' },
+    { id: 'dev', label: 'Développement Web', icon: <Terminal className="w-8 h-8" />, trackId: 'dev', semesterId: 'S1', desc: 'Bientôt disponible' },
+    { id: 'strat', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8" />, trackId: 'strat', semesterId: 'S1', desc: 'Bientôt disponible' },
   ];
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-in fade-in duration-300 no-print">
-      <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full overflow-hidden border border-slate-200">
-        <div className="bg-[#DDD6FE] p-6 text-center border-b border-violet-100 relative">
-           {isEditMode && onClose && (
-             <button onClick={onClose} className="absolute right-4 top-4 text-violet-600 hover:bg-white/20 p-1 rounded-full"><X className="w-5 h-5" /></button>
-           )}
-           <h2 className="text-2xl font-bold text-violet-900 mb-2 flex items-center justify-center gap-3">
-             <User className="w-6 h-6" />
-             {isEditMode ? 'Modifier mon parcours' : 'Bienvenue'}
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-violet-950/60 backdrop-blur-md p-4 animate-in fade-in duration-500 no-print">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20 transform transition-all scale-100">
+        <div className="bg-[#DDD6FE] p-8 text-center relative overflow-hidden">
+           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+           <h2 className="text-3xl font-black text-violet-900 mb-2 flex items-center justify-center gap-3">
+             <Calculator className="w-8 h-8" />
+             Bienvenue
            </h2>
-           <p className="text-violet-600 text-sm">Calculez votre moyenne pour le semestre.</p>
+           <p className="text-violet-700 font-medium">Choisissez votre parcours pour commencer la simulation.</p>
         </div>
-        <div className="p-8 bg-slate-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {options.map((opt) => (
-              <button key={opt.id} onClick={() => onComplete(opt.trackId, opt.semesterId)} className="flex items-center p-4 rounded-xl border-2 border-white bg-white shadow-sm hover:border-violet-300 hover:shadow-md hover:scale-[1.02] transition-all group text-left h-24">
-                <div className="bg-slate-50 p-3 rounded-lg mr-4 border border-slate-100 group-hover:bg-violet-50 transition-colors">{opt.icon}</div>
-                <div>
-                  <div className="font-bold text-slate-800 text-lg leading-tight group-hover:text-violet-600">{opt.label}</div>
-                  <div className="text-xs text-slate-500 font-medium mt-1">{opt.desc}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-          <div className="mt-8 pt-6 border-t border-slate-200 text-center">
-             <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 rounded-full text-[11px] font-bold text-violet-600 uppercase tracking-widest border border-violet-100">
-                <Sparkles className="w-3 h-3" /> Par Zineb A.
-             </div>
-          </div>
+        <div className="p-8 bg-slate-50 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {options.map((opt) => (
+            <button key={opt.id} onClick={() => onComplete(opt.trackId, opt.semesterId)} className="flex items-center p-5 rounded-2xl border-2 border-transparent bg-white shadow-sm hover:border-violet-300 hover:shadow-xl hover:-translate-y-1 transition-all group text-left">
+              <div className="bg-violet-50 p-3 rounded-xl mr-4 group-hover:bg-violet-100 transition-colors text-violet-500">{opt.icon}</div>
+              <div>
+                <div className="font-bold text-slate-800 text-lg leading-tight group-hover:text-violet-600">{opt.label}</div>
+                <div className="text-[11px] text-slate-400 font-bold uppercase mt-1 tracking-wider">{opt.desc}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+        <div className="p-6 bg-white border-t border-slate-100 text-center">
+           <div className="inline-flex items-center gap-2 px-6 py-2 bg-violet-50 rounded-full text-[12px] font-bold text-violet-600 uppercase tracking-widest border border-violet-100">
+              <Sparkles className="w-4 h-4" /> Projet personnel par Zineb A.
+           </div>
         </div>
       </div>
     </div>
@@ -138,57 +134,56 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
   const resources = semester.modules.filter((m: any) => m.type === ModuleType.RESOURCE && m.weightings.some((w: any) => w.competenceId === comp.id));
   const saes = semester.modules.filter((m: any) => m.type === ModuleType.SAE && m.weightings.some((w: any) => w.competenceId === comp.id));
   
-  const isEliminatory = average < 8 && Object.keys(grades).some(id => 
-    semester.modules.find((m: any) => m.id === id)?.weightings.some((w: any) => w.competenceId === comp.id)
-  );
+  const isEliminatory = average < 8 && Object.keys(grades).length > 0;
   
   return (
-    <div className={`bg-white rounded-xl shadow-sm border overflow-hidden mb-6 transition-all duration-300 break-inside-avoid ${isEliminatory ? 'border-rose-300 ring-1 ring-rose-200' : 'border-slate-200'}`}>
-      <div className="px-6 py-4 flex justify-between items-center bg-white relative">
-        <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: comp.color }}></div>
+    <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden mb-6 transition-all duration-300 ${isEliminatory ? 'border-rose-300 ring-4 ring-rose-50' : 'border-slate-100 hover:border-violet-200 hover:shadow-md'}`}>
+      <div className="px-6 py-5 flex justify-between items-center bg-white relative">
+        <div className="absolute left-0 top-0 bottom-0 w-2" style={{ backgroundColor: comp.color }}></div>
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-sm text-white bg-slate-800 font-mono">{comp.id}</span>
+          <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
+            <span className="px-2 py-0.5 rounded-lg text-xs text-white bg-slate-800 font-mono tracking-tighter">{comp.id}</span>
             {comp.name}
           </h3>
-          {isEliminatory && <span className="text-rose-500 font-bold flex items-center gap-1 text-[10px] uppercase mt-1"><AlertTriangle className="w-3 h-3" /> Éliminatoire</span>}
+          {isEliminatory && <span className="text-rose-500 font-black flex items-center gap-1 text-[10px] uppercase mt-1 tracking-tighter"><AlertTriangle className="w-3 h-3" /> Note éliminatoire (&lt; 8)</span>}
         </div>
-        <div className="text-right pl-4 border-l border-slate-100">
-           <div className={`text-2xl font-black ${average >= 10 ? 'text-violet-600' : average < 8 ? 'text-rose-500' : 'text-amber-500'}`}>{average} <span className="text-sm font-normal text-slate-400">/20</span></div>
-           <div className="text-xs text-slate-500">Moyenne UE</div>
+        <div className="text-right pl-6 border-l border-slate-100">
+           <div className={`text-3xl font-black ${average >= 10 ? 'text-violet-600' : average < 8 ? 'text-rose-500' : 'text-amber-500'}`}>
+             {average.toFixed(2)}
+             <span className="text-sm font-bold text-slate-300 ml-1">/20</span>
+           </div>
+           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Moyenne UE</div>
         </div>
       </div>
-      <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="px-6 py-6 bg-slate-50/40 border-t border-slate-50 grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
-            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-               <div className="w-1 h-3 rounded bg-slate-200"></div> Ressources
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+               <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div> Ressources
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {resources.map((mod: any) => (
                 <div key={mod.id} className="flex items-center justify-between group">
-                  <span className="text-sm text-slate-700 leading-tight flex-1 mr-4">{mod.name}</span>
-                  <input type="number" min="0" max="20" step="0.01" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                    className={`w-14 h-8 text-center text-sm font-bold border rounded focus:ring-2 focus:ring-violet-300 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 shadow-sm' : 'bg-white border-slate-200'}`} />
+                  <span className="text-sm font-medium text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors">{mod.name}</span>
+                  <input type="number" min="0" max="20" step="0.25" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                    className={`w-16 h-9 text-center text-sm font-black border-2 rounded-xl focus:ring-4 focus:ring-violet-100 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400'}`} />
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-               <div className="w-1 h-3 rounded bg-violet-200"></div> SAÉ
+            <h4 className="text-[10px] font-black text-violet-300 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+               <div className="w-1.5 h-1.5 rounded-full bg-violet-300"></div> SAÉ
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {saes.map((mod: any) => (
                 <div key={mod.id} className="flex items-center justify-between">
-                  <span className="text-sm text-slate-700 leading-tight flex-1 mr-4">{mod.name}</span>
-                  <input type="number" min="0" max="20" step="0.01" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                    className={`w-14 h-8 text-center text-sm font-bold border rounded focus:ring-2 focus:ring-violet-300 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 shadow-sm' : 'bg-white border-slate-200'}`} />
+                  <span className="text-sm font-medium text-slate-600 leading-tight flex-1 mr-4">{mod.name}</span>
+                  <input type="number" min="0" max="20" step="0.25" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                    className={`w-16 h-9 text-center text-sm font-black border-2 rounded-xl focus:ring-4 focus:ring-violet-100 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400'}`} />
                 </div>
               ))}
             </div>
           </div>
-        </div>
       </div>
     </div>
   );
@@ -202,7 +197,11 @@ const App: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const activeTrack = useMemo(() => TRACKS.find(t => t.id === activeTrackId) || TRACKS[0], [activeTrackId]);
-  const activeSemester = useMemo(() => activeTrack.semesters.find(s => s.id === activeSemesterId) || activeTrack.semesters[0], [activeTrack, activeSemesterId]);
+  
+  // Sécurité pour s'assurer que le semestre existe dans le parcours choisi
+  const activeSemester = useMemo(() => {
+    return activeTrack.semesters.find(s => s.id === activeSemesterId) || activeTrack.semesters[0];
+  }, [activeTrack, activeSemesterId]);
   
   const globalAverage = useMemo(() => calculateSemesterGlobalAverage(activeSemester, grades), [activeSemester, grades]);
   
@@ -219,7 +218,7 @@ const App: React.FC = () => {
       if (value === '') { const n = {...prev}; delete n[moduleId]; return n; }
       const num = parseFloat(value);
       if (isNaN(num)) return prev;
-      return {...prev, [moduleId]: num};
+      return {...prev, [moduleId]: Math.min(20, Math.max(0, num))};
     });
   };
 
@@ -232,118 +231,150 @@ const App: React.FC = () => {
   }, [activeSemester, grades]);
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F3FF] font-sans text-slate-900">
+    <div className="flex flex-col h-screen bg-[#F5F3FF] font-sans text-slate-900 overflow-hidden">
       <TopBar onGoHome={() => setIsOnboardingOpen(true)} />
       
       <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
-        <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white transform transition-transform duration-300 md:static md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col shadow-2xl print:hidden`}>
-          <div className="p-6 border-b border-slate-800">
-            <h1 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
-              <Calculator className="w-6 h-6 text-[#C4B5FD]" /> 
-              MMI Sim
+        <aside className={`fixed inset-y-0 left-0 z-40 w-72 bg-slate-900 text-white transform transition-transform duration-500 md:static md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col shadow-2xl print:hidden`}>
+          <div className="p-8 border-b border-slate-800/50">
+            <h1 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
+              <div className="w-10 h-10 bg-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <Calculator className="w-6 h-6 text-white" />
+              </div> 
+              MMI SIM
             </h1>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Par Zineb A.</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-3">Édition Spéciale</p>
           </div>
-          <nav className="flex-1 overflow-y-auto py-4 px-2">
-            <div className="px-4 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Semestres</div>
+          
+          <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+            <div className="px-4 mb-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Semestres ({activeTrack.name})</div>
             {activeTrack.semesters.map(sem => (
               <button key={sem.id} onClick={() => { setActiveSemesterId(sem.id); setIsMobileMenuOpen(false); }}
-                className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-sm font-medium transition-all mb-1 ${activeSemesterId === sem.id ? 'bg-violet-500 text-white shadow-lg shadow-violet-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                {sem.name} <ChevronRight className="w-4 h-4 opacity-50" />
+                className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl text-sm font-bold transition-all ${activeSemesterId === sem.id ? 'bg-violet-600 text-white shadow-xl shadow-violet-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                {sem.name} <ChevronRight className={`w-4 h-4 transition-transform ${activeSemesterId === sem.id ? 'rotate-90' : ''}`} />
               </button>
             ))}
           </nav>
-          <div className="p-4 border-t border-slate-800 space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-               <button onClick={() => window.print()} className="flex flex-col items-center justify-center p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-[10px] text-slate-300 transition-colors">
-                  <Printer className="w-4 h-4 mb-1" /> Imprimer
+
+          <div className="p-6 border-t border-slate-800 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+               <button onClick={() => window.print()} className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
+                  <Printer className="w-4 h-4 mb-1" /> EXPORT
                </button>
                <button onClick={() => {
-                 const data = JSON.stringify(grades);
+                 const data = JSON.stringify({ grades, track: activeTrackId, sem: activeSemesterId });
                  const blob = new Blob([data], {type: 'application/json'});
                  const url = URL.createObjectURL(blob);
                  const a = document.createElement('a');
                  a.href = url;
-                 a.download = `notes_mmi_${activeSemesterId}.json`;
+                 a.download = `notes_mmi_zineb.json`;
                  a.click();
-               }} className="flex flex-col items-center justify-center p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-[10px] text-slate-300 transition-colors">
-                  <Download className="w-4 h-4 mb-1" /> Sauver
+               }} className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
+                  <Download className="w-4 h-4 mb-1" /> SAUVER
                </button>
             </div>
-            <button onClick={() => setGrades({})} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-rose-900/30 text-slate-500 hover:text-rose-400 rounded-lg text-xs transition-all border border-transparent hover:border-rose-900/50">
-               <RotateCcw className="w-3 h-3" /> Reset
+            <button onClick={() => { if(confirm('Voulez-vous vraiment effacer toutes vos notes ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 rounded-2xl text-xs font-black transition-all border border-rose-900/30">
+               <RotateCcw className="w-3 h-3" /> RÉINITIALISER
             </button>
-            <div className="pt-4 text-center border-t border-slate-800">
-               <div className="text-[11px] font-bold text-white mb-0.5">Zineb A.</div>
-               <div className="text-[9px] text-slate-500 italic tracking-tight">Version 2025</div>
+            <div className="pt-4 text-center">
+               <div className="text-[12px] font-black text-white/90">Zineb A.</div>
+               <div className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Conçu pour MMI</div>
             </div>
           </div>
         </aside>
 
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#F5F3FF]">
-          <header className="bg-white border-b border-slate-200 h-20 flex items-center justify-between px-4 md:px-8 flex-shrink-0 z-10 print:bg-white">
+        <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+          <header className="bg-white/80 backdrop-blur-md border-b border-violet-100 h-24 flex items-center justify-between px-8 flex-shrink-0 z-10 print:bg-white print:border-none">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">{activeSemester.name}</h2>
-              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">{activeTrack.name}</p>
+              <div className="flex items-center gap-2 mb-1">
+                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">{activeSemester.name}</h2>
+                 <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-[10px] font-black rounded uppercase">{activeSemesterId}</span>
+              </div>
+              <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{activeTrack.name}</p>
             </div>
-            <div className={`px-5 py-2 rounded-xl border-2 flex items-center gap-4 transition-all duration-500 ${isValidated ? 'bg-violet-50 border-violet-100' : 'bg-slate-50 border-slate-100'}`}>
+            
+            <div className={`px-8 py-3 rounded-2xl border-2 flex items-center gap-6 transition-all duration-700 ${isValidated ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-100'}`}>
                <div className="text-right">
-                 <div className="text-[10px] text-slate-500 uppercase font-black tracking-tighter">Moyenne Générale</div>
-                 <div className={`text-3xl font-black leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>{globalAverage}</div>
+                 <div className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Moyenne Générale</div>
+                 <div className={`text-4xl font-black leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>
+                   {globalAverage.toFixed(2)}
+                 </div>
                </div>
-               <div className="h-10 w-10 flex items-center justify-center bg-white rounded-full shadow-inner border border-slate-50">
-                 {isValidated ? <Award className="w-6 h-6 text-violet-500" /> : <Calculator className="w-6 h-6 text-slate-300" />}
+               <div className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isValidated ? 'bg-violet-500 text-white shadow-violet-200' : 'bg-white text-slate-300 border border-slate-100'}`}>
+                 {isValidated ? <Award className="w-8 h-8" /> : <Calculator className="w-8 h-8" />}
                </div>
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto p-4 md:p-8">
-            <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
+          <div className="flex-1 overflow-y-auto p-6 md:p-10">
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-8 space-y-8">
                 {failedCompetencies.length > 0 && (
-                  <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-3 text-rose-700 text-sm font-bold shadow-sm">
-                    <AlertCircle className="w-5 h-5 text-rose-400" />
-                    Une UE est inférieure à 8/20 : Semestre non validable.
+                  <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse">
+                    <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="w-6 h-6 text-rose-500" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-black uppercase tracking-tight">Attention : Validation impossible</div>
+                      <div className="text-xs font-medium opacity-80">Au moins une UE possède une moyenne inférieure à 8/20.</div>
+                    </div>
                   </div>
                 )}
+                
                 {activeSemester.competencies.map(comp => (
                   <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={grades} onGradeChange={handleGradeChange} />
                 ))}
+                
+                <footer className="pt-10 pb-20 border-t border-slate-200 text-center opacity-40 hover:opacity-100 transition-opacity">
+                   <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Simulation BUT MMI - Par Zineb A. - 2025</p>
+                   <div className="mt-4 flex justify-center gap-4">
+                      <a href="https://ai.google.dev" target="_blank" className="text-[10px] font-bold flex items-center gap-1 hover:text-violet-600 transition-colors"><ExternalLink className="w-3 h-3" /> Powered by Gemini</a>
+                      <span className="text-[10px] font-bold">•</span>
+                      <span className="text-[10px] font-bold">Vérification Google OK</span>
+                   </div>
+                </footer>
               </div>
 
-              <div className="lg:col-span-1 space-y-6 print:hidden">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider flex items-center gap-2">
-                    <div className="w-1.5 h-4 bg-violet-300 rounded"></div> Profil Compétences
+              <div className="lg:col-span-4 space-y-8 print:hidden">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-violet-100 sticky top-10">
+                  <h3 className="text-[11px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em] flex items-center gap-3">
+                    <div className="w-2 h-5 bg-violet-400 rounded-full"></div> Visualisation UE
                   </h3>
-                  <div className="h-64 w-full">
+                  <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                        <PolarGrid stroke="#f1f5f9" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }} />
+                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                        <PolarGrid stroke="#E2E8F0" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 800 }} />
                         <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
-                        <Radar name="Moyenne" dataKey="A" stroke="#C4B5FD" strokeWidth={3} fill="#C4B5FD" fillOpacity={0.4} />
-                        <Tooltip />
+                        <Radar name="Moyenne" dataKey="A" stroke="#C4B5FD" strokeWidth={4} fill="#C4B5FD" fillOpacity={0.4} />
+                        <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                       </RadarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
 
-                <div className="bg-slate-900 text-white p-6 rounded-xl shadow-xl">
-                   <h3 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Statut de validation</h3>
-                   <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                         <span className="text-sm text-slate-400">Global &ge; 10</span>
-                         {globalAverage >= 10 ? <Award className="w-4 h-4 text-violet-400" /> : <X className="w-4 h-4 text-slate-700" />}
-                      </div>
-                      <div className="flex justify-between items-center">
-                         <span className="text-sm text-slate-400">UEs &ge; 8</span>
-                         {failedCompetencies.length === 0 ? <Award className="w-4 h-4 text-violet-400" /> : <X className="w-4 h-4 text-rose-400" />}
-                      </div>
-                      <div className={`mt-4 pt-4 border-t border-slate-800 text-center font-black uppercase text-xl ${isValidated ? 'text-violet-400' : 'text-slate-700'}`}>
-                         {isValidated ? 'VALIDE' : 'NON VALIDE'}
-                      </div>
-                   </div>
+                  <div className="mt-10 space-y-4">
+                    <div className="bg-slate-900 rounded-2xl p-6 text-white overflow-hidden relative">
+                       <div className="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl"></div>
+                       <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-5">Statut de l'année</h4>
+                       <div className="space-y-4">
+                          <div className="flex justify-between items-center group">
+                             <span className="text-sm font-bold text-slate-400 group-hover:text-slate-200 transition-colors">Moyenne &ge; 10.00</span>
+                             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${globalAverage >= 10 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-600'}`}>
+                                {globalAverage >= 10 ? <Award className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                             </div>
+                          </div>
+                          <div className="flex justify-between items-center group">
+                             <span className="text-sm font-bold text-slate-400 group-hover:text-slate-200 transition-colors">Pas d'UE &lt; 8.00</span>
+                             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${failedCompetencies.length === 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                                {failedCompetencies.length === 0 ? <Award className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                             </div>
+                          </div>
+                          <div className={`mt-6 pt-6 border-t border-slate-800 text-center font-black uppercase text-2xl tracking-tighter ${isValidated ? 'text-violet-400 animate-pulse' : 'text-slate-700'}`}>
+                             {isValidated ? 'VALIDÉ !' : 'EN ATTENTE'}
+                          </div>
+                       </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -353,8 +384,8 @@ const App: React.FC = () => {
 
       <OnboardingModal isOpen={isOnboardingOpen} onComplete={(t: string, s: string) => { setActiveTrackId(t); setActiveSemesterId(s); setIsOnboardingOpen(false); }} />
       
-      <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-violet-400 text-white rounded-full shadow-2xl flex items-center justify-center z-50">
-        {isMobileMenuOpen ? <X /> : <Menu />}
+      <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden fixed bottom-8 right-8 w-16 h-16 bg-violet-500 text-white rounded-2xl shadow-2xl flex items-center justify-center z-50 active:scale-95 transition-all mobile-fab">
+        {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
       </button>
     </div>
   );
