@@ -2,12 +2,12 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <!-- Google Search Console Verification - Placé en haut pour une détection rapide -->
+    <meta name="google-site-verification" content="EUaBtjDBkhN3L33VlU4DWtdAhUlujJTId5sLAQ2j3Ws" />
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Simulateur BUT MMI | Calculez votre moyenne par UE et Compétence</title>
     
-    <!-- Google Search Console Verification -->
-    <meta name="google-site-verification" content="EUaBtjDBkhN3L33VlU4DWtdAhUlujJTId5sLAQ2j3Ws" />
-
     <!-- SEO Meta Tags -->
     <meta name="description" content="Le meilleur simulateur de notes pour le BUT MMI (Métiers du Multimédia et de l'Internet). Calcul automatique des moyennes par UE, coefficients officiels et validation annuelle." />
     <meta name="keywords" content="BUT MMI, MMI, simulateur de notes, calcul moyenne, IUT, Métiers du Multimédia et de l'Internet, OGE MMI" />
@@ -40,81 +40,25 @@
         overscroll-behavior-y: none;
       }
       
-      .print-only {
-        display: none;
-      }
-      
       @media print {
-        @page {
-          margin: 1.5cm;
-          size: A4;
-        }
-        
-        body {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          background-color: white !important;
-          color: black !important;
-        }
-
-        html, body, #root, main, .print-container {
-            height: auto !important;
-            min-height: 0 !important;
-            overflow: visible !important;
-            display: block !important;
-            position: static !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .no-print, #sidebar, #mobile-header, .print-hidden, header, .recharts-wrapper, .print-hide-scroll {
-            display: none !important;
-        }
-
-        .print-only {
-            display: block !important;
-        }
-        
-        .lg\:grid-cols-3 {
-            display: block !important;
-        }
-        .lg\:col-span-2, .lg\:col-span-1 {
-            width: 100% !important;
-            margin-bottom: 2rem !important;
-            page-break-inside: avoid;
-        }
-
-        .rounded-xl {
-            border-radius: 4px !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: none !important;
-            margin-bottom: 1rem !important;
-            break-inside: avoid;
-        }
-
-        h1, h2, h3, h4, .text-slate-900, .text-slate-800 {
-            color: black !important;
-        }
-        
-        .break-inside-avoid {
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
+        @page { margin: 1cm; size: A4; }
+        .no-print, #sidebar, button { display: none !important; }
+        body { background: white; }
+        .print-shadow-none { box-shadow: none !important; border: 1px solid #eee !important; }
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.0"
-  }
-}
-</script>
-</head>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+        "recharts": "https://aistudiocdn.com/recharts@^3.5.0"
+      }
+    }
+    </script>
+  </head>
   <body class="bg-slate-50 text-slate-900 selection:bg-blue-100 selection:text-blue-900">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
