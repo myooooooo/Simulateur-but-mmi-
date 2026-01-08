@@ -65,7 +65,7 @@ const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap
 // --- Composants UI ---
 
 const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
-  <header className="bg-[#2196F3] text-white h-16 flex items-center justify-between px-4 shadow-md z-50 relative print:hidden">
+  <header className="bg-[#A78BFA] text-white h-16 flex items-center justify-between px-4 shadow-md z-50 relative print:hidden">
     <div className="flex items-center gap-4">
       <button onClick={onGoHome} className="p-2 hover:bg-white/10 rounded-full transition-colors">
          <Home className="w-6 h-6" />
@@ -77,7 +77,7 @@ const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
     </div>
     <div className="flex items-center gap-4">
       <div className="hidden sm:flex flex-col items-end mr-2">
-        <span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">Zineb Anssafou</span>
+        <span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">Zineb A.</span>
         <span className="text-xs font-bold">Projet Étudiant</span>
       </div>
       <button className="p-2 hover:bg-white/10 rounded-full transition-colors" title="Infos">
@@ -91,7 +91,7 @@ const OnboardingModal = ({ isOpen, onComplete, isEditMode = false, onClose }: an
   if (!isOpen) return null;
 
   const options = [
-    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8 text-blue-600" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun' },
+    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8 text-violet-600" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun' },
     { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8 text-purple-600" />, trackId: 'crea', semesterId: 'S3-CN', desc: 'Parcours Créa (Dès le S3)' },
     { id: 'dev', label: 'Développement Web', icon: <Terminal className="w-8 h-8 text-emerald-600" />, trackId: 'dev', semesterId: 'S1', desc: 'Parcours Dev' },
     { id: 'strat', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8 text-amber-600" />, trackId: 'strat', semesterId: 'S1', desc: 'Parcours Strat' },
@@ -100,7 +100,7 @@ const OnboardingModal = ({ isOpen, onComplete, isEditMode = false, onClose }: an
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-in fade-in duration-300 no-print">
       <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full overflow-hidden border border-slate-200">
-        <div className="bg-[#2196F3] p-6 text-center border-b border-blue-600 relative">
+        <div className="bg-[#A78BFA] p-6 text-center border-b border-violet-400 relative">
            {isEditMode && onClose && (
              <button onClick={onClose} className="absolute right-4 top-4 text-white hover:bg-white/20 p-1 rounded-full"><X className="w-5 h-5" /></button>
            )}
@@ -108,23 +108,23 @@ const OnboardingModal = ({ isOpen, onComplete, isEditMode = false, onClose }: an
              <User className="w-6 h-6 text-white" />
              {isEditMode ? 'Modifier mon parcours' : 'Bienvenue sur le Simulateur'}
            </h2>
-           <p className="text-blue-100 text-sm">Sélectionnez votre semestre pour commencer.</p>
+           <p className="text-violet-50 text-sm">Sélectionnez votre semestre pour commencer.</p>
         </div>
         <div className="p-8 bg-slate-50">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {options.map((opt) => (
-              <button key={opt.id} onClick={() => onComplete(opt.trackId, opt.semesterId)} className="flex items-center p-4 rounded-xl border-2 border-white bg-white shadow-sm hover:border-[#2196F3] hover:shadow-md hover:scale-[1.02] transition-all group text-left h-24">
-                <div className="bg-slate-50 p-3 rounded-lg mr-4 border border-slate-100 group-hover:bg-blue-50 transition-colors">{opt.icon}</div>
+              <button key={opt.id} onClick={() => onComplete(opt.trackId, opt.semesterId)} className="flex items-center p-4 rounded-xl border-2 border-white bg-white shadow-sm hover:border-[#A78BFA] hover:shadow-md hover:scale-[1.02] transition-all group text-left h-24">
+                <div className="bg-slate-50 p-3 rounded-lg mr-4 border border-slate-100 group-hover:bg-violet-50 transition-colors">{opt.icon}</div>
                 <div>
-                  <div className="font-bold text-slate-800 text-lg leading-tight group-hover:text-[#2196F3]">{opt.label}</div>
+                  <div className="font-bold text-slate-800 text-lg leading-tight group-hover:text-[#8B5CF6]">{opt.label}</div>
                   <div className="text-xs text-slate-500 font-medium mt-1">{opt.desc}</div>
                 </div>
               </button>
             ))}
           </div>
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
-             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full text-[11px] font-bold text-blue-700 uppercase tracking-widest border border-blue-100">
-                <Sparkles className="w-3 h-3" /> Fait avec IA par Zineb Anssafou
+             <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-50 rounded-full text-[11px] font-bold text-violet-700 uppercase tracking-widest border border-violet-100">
+                <Sparkles className="w-3 h-3" /> Fait avec IA par Zineb A.
              </div>
              <p className="text-slate-400 text-[10px] mt-2 italic">Petit projet étudiant indépendant</p>
           </div>
@@ -170,21 +170,21 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                 <div key={mod.id} className="flex items-center justify-between group">
                   <span className="text-sm text-slate-700 leading-tight flex-1 mr-4">{mod.name}</span>
                   <input type="number" min="0" max="20" step="0.01" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                    className={`w-14 h-8 text-center text-sm font-bold border rounded focus:ring-2 focus:ring-blue-500 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-blue-400 shadow-sm' : 'bg-white border-slate-200'}`} />
+                    className={`w-14 h-8 text-center text-sm font-bold border rounded focus:ring-2 focus:ring-violet-500 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-400 shadow-sm' : 'bg-white border-slate-200'}`} />
                 </div>
               ))}
             </div>
           </div>
           <div>
             <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-               <div className="w-1 h-3 rounded bg-blue-300"></div> SAÉ
+               <div className="w-1 h-3 rounded bg-violet-300"></div> SAÉ
             </h4>
             <div className="space-y-2">
               {saes.map((mod: any) => (
                 <div key={mod.id} className="flex items-center justify-between">
                   <span className="text-sm text-slate-700 leading-tight flex-1 mr-4">{mod.name}</span>
                   <input type="number" min="0" max="20" step="0.01" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                    className={`w-14 h-8 text-center text-sm font-bold border rounded focus:ring-2 focus:ring-blue-500 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-blue-400 shadow-sm' : 'bg-white border-slate-200'}`} />
+                    className={`w-14 h-8 text-center text-sm font-bold border rounded focus:ring-2 focus:ring-violet-500 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-400 shadow-sm' : 'bg-white border-slate-200'}`} />
                 </div>
               ))}
             </div>
@@ -241,7 +241,7 @@ const App: React.FC = () => {
         <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white transform transition-transform duration-300 md:static md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col shadow-2xl print:hidden`}>
           <div className="p-6 border-b border-slate-800">
             <h1 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
-              <Calculator className="w-6 h-6 text-blue-400" /> 
+              <Calculator className="w-6 h-6 text-violet-400" /> 
               MMI Sim
             </h1>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Version Étudiante</p>
@@ -250,7 +250,7 @@ const App: React.FC = () => {
             <div className="px-4 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Semestres</div>
             {activeTrack.semesters.map(sem => (
               <button key={sem.id} onClick={() => { setActiveSemesterId(sem.id); setIsMobileMenuOpen(false); }}
-                className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-sm font-medium transition-all mb-1 ${activeSemesterId === sem.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+                className={`w-full flex items-center justify-between px-3 py-3 rounded-lg text-sm font-medium transition-all mb-1 ${activeSemesterId === sem.id ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                 {sem.name} <ChevronRight className="w-4 h-4 opacity-50" />
               </button>
             ))}
@@ -276,7 +276,7 @@ const App: React.FC = () => {
                <RotateCcw className="w-3 h-3" /> Réinitialiser
             </button>
             <div className="pt-4 text-center border-t border-slate-800">
-               <div className="text-[11px] font-bold text-white mb-0.5">Zineb Anssafou</div>
+               <div className="text-[11px] font-bold text-white mb-0.5">Zineb A.</div>
                <div className="text-[9px] text-slate-500 italic tracking-tight">Fait avec IA - Projet étudiant</div>
             </div>
           </div>
@@ -318,7 +318,7 @@ const App: React.FC = () => {
               <div className="lg:col-span-1 space-y-6 print:hidden">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                   <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider flex items-center gap-2">
-                    <div className="w-1.5 h-4 bg-blue-500 rounded"></div> Profil Compétences
+                    <div className="w-1.5 h-4 bg-violet-500 rounded"></div> Profil Compétences
                   </h3>
                   <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -326,7 +326,7 @@ const App: React.FC = () => {
                         <PolarGrid stroke="#e2e8f0" />
                         <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11, fontWeight: 700 }} />
                         <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
-                        <Radar name="Moyenne" dataKey="A" stroke="#2196F3" strokeWidth={3} fill="#2196F3" fillOpacity={0.2} />
+                        <Radar name="Moyenne" dataKey="A" stroke="#A78BFA" strokeWidth={3} fill="#A78BFA" fillOpacity={0.2} />
                         <Tooltip />
                       </RadarChart>
                     </ResponsiveContainer>
@@ -358,7 +358,7 @@ const App: React.FC = () => {
       <OnboardingModal isOpen={isOnboardingOpen} onComplete={(t: string, s: string) => { setActiveTrackId(t); setActiveSemesterId(s); setIsOnboardingOpen(false); }} />
       
       {/* Mobile Toggle */}
-      <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center z-50">
+      <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-violet-600 text-white rounded-full shadow-2xl flex items-center justify-center z-50">
         {isMobileMenuOpen ? <X /> : <Menu />}
       </button>
     </div>
