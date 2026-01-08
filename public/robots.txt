@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://simulateur-but-mmi.vercel.app/sitemap.xml
