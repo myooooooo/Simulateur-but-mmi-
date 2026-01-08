@@ -3,16 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Simulateur BUT MMI</title>
+    <title>Simulateur BUT MMI | Calculez votre moyenne par UE et Compétence</title>
     
-    <!-- PWA / Mobile Web App Capable Settings -->
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="EUaBtjDBkhN3L33VlU4DWtdAhUlujJTId5sLAQ2j3Ws" />
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Le meilleur simulateur de notes pour le BUT MMI (Métiers du Multimédia et de l'Internet). Calcul automatique des moyennes par UE, coefficients officiels et validation annuelle." />
+    <meta name="keywords" content="BUT MMI, MMI, simulateur de notes, calcul moyenne, IUT, Métiers du Multimédia et de l'Internet, OGE MMI" />
+    <meta name="author" content="Zineb Anssafou" />
+    <link rel="canonical" href="https://simulateur-but-mmi.vercel.app/" />
+
+    <!-- Social Media (Open Graph) -->
+    <meta property="og:title" content="Simulateur BUT MMI" />
+    <meta property="og:description" content="Calculez facilement vos moyennes de semestre et vérifiez vos validations d'UE pour le BUT MMI." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://simulateur-but-mmi.vercel.app/" />
+    <meta property="og:image" content="https://ui-avatars.com/api/?name=MMI+Sim&background=2196F3&color=fff&size=512" />
+
+    <!-- PWA / Mobile Web App Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Simulateur MMI">
     <meta name="format-detection" content="telephone=no">
     <meta name="theme-color" content="#2196F3">
     
-    <!-- Icons (Using a placeholder service for the demo, replace with local assets for prod) -->
+    <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=S+M&background=2196F3&color=fff&rounded=true&bold=true&size=180">
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=S+M&background=2196F3&color=fff&rounded=true&bold=true&size=32">
 
@@ -21,11 +37,9 @@
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
       body {
         font-family: 'Inter', sans-serif;
-        /* Prevent bounce scroll on iOS */
         overscroll-behavior-y: none;
       }
       
-      /* Hide print-only elements on screen by default */
       .print-only {
         display: none;
       }
@@ -36,7 +50,6 @@
           size: A4;
         }
         
-        /* Force background colors */
         body {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
@@ -44,7 +57,6 @@
           color: black !important;
         }
 
-        /* Essential resets to allow multi-page printing */
         html, body, #root, main, .print-container {
             height: auto !important;
             min-height: 0 !important;
@@ -56,17 +68,14 @@
             padding: 0 !important;
         }
 
-        /* Hide interactive elements */
         .no-print, #sidebar, #mobile-header, .print-hidden, header, .recharts-wrapper, .print-hide-scroll {
             display: none !important;
         }
 
-        /* Show print specific elements */
         .print-only {
             display: block !important;
         }
         
-        /* Grid adjustments for print linear layout */
         .lg\:grid-cols-3 {
             display: block !important;
         }
@@ -76,7 +85,6 @@
             page-break-inside: avoid;
         }
 
-        /* Card styling for print */
         .rounded-xl {
             border-radius: 4px !important;
             border: 1px solid #e2e8f0 !important;
@@ -85,12 +93,10 @@
             break-inside: avoid;
         }
 
-        /* Typography fixes */
         h1, h2, h3, h4, .text-slate-900, .text-slate-800 {
             color: black !important;
         }
         
-        /* Page break management */
         .break-inside-avoid {
           break-inside: avoid;
           page-break-inside: avoid;
@@ -112,6 +118,5 @@
   <body class="bg-slate-50 text-slate-900 selection:bg-blue-100 selection:text-blue-900">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
-
   </body>
 </html>
