@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
@@ -67,7 +68,7 @@ const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap
 const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
   <header className="bg-[#C4B5FD] text-white h-16 flex items-center justify-between px-6 shadow-md z-50 relative print:hidden">
     <div className="flex items-center gap-4">
-      <button onClick={onGoHome} className="p-2 hover:bg-white/20 rounded-xl transition-all active:scale-95">
+      <button onClick={onGoHome} aria-label="Retour à l'accueil" className="p-2 hover:bg-white/20 rounded-xl transition-all active:scale-95">
          <Home className="w-6 h-6" />
       </button>
       <div className="flex flex-col cursor-pointer" onClick={onGoHome}>
@@ -81,7 +82,7 @@ const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
         <span className="text-xs font-bold text-violet-900">BUT MMI</span>
       </div>
       <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center">
-        <Sparkles className="w-5 h-5 text-violet-900" />
+        <Sparkles className="w-5 h-5 text-violet-900" aria-label="Icône étincelles" />
       </div>
     </div>
   </header>
@@ -91,27 +92,34 @@ const OnboardingModal = ({ isOpen, onComplete }: any) => {
   if (!isOpen) return null;
 
   const options = [
-    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun' },
-    { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8" />, trackId: 'crea', semesterId: 'S3-CN', desc: 'Parcours Créa (S3-S6)' },
-    { id: 'dev', label: 'Développement Web', icon: <Terminal className="w-8 h-8" />, trackId: 'dev', semesterId: 'S1', desc: 'Bientôt disponible' },
-    { id: 'strat', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8" />, trackId: 'strat', semesterId: 'S1', desc: 'Bientôt disponible' },
+    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun', ariaLabel: 'Calculer ma moyenne pour la 1ère année de BUT MMI' },
+    { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8" />, trackId: 'crea', semesterId: 'S3-CN', desc: 'Parcours Créa (S3-S6)', ariaLabel: 'Calculer ma moyenne pour le parcours Création Numérique' },
+    { id: 'dev', label: 'Développement Web', icon: <Terminal className="w-8 h-8" />, trackId: 'dev', semesterId: 'S1', desc: 'Bientôt disponible', ariaLabel: 'Calculer ma moyenne pour le parcours Développement Web' },
+    { id: 'strat', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8" />, trackId: 'strat', semesterId: 'S1', desc: 'Bientôt disponible', ariaLabel: 'Calculer ma moyenne pour le parcours Stratégie de Communication' },
   ];
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-violet-950/60 backdrop-blur-md p-4 animate-in fade-in duration-500 no-print">
       <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20 transform transition-all scale-100">
         <div className="bg-[#DDD6FE] p-8 text-center relative overflow-hidden">
-           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
-           <h2 className="text-3xl font-black text-violet-900 mb-2 flex items-center justify-center gap-3">
-             <Calculator className="w-8 h-8" />
-             Bienvenue
-           </h2>
-           <p className="text-violet-700 font-medium">Choisissez votre parcours pour commencer la simulation.</p>
+           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl" aria-hidden="true"></div>
+           <h1 className="text-3xl font-black text-violet-900 mb-4 flex items-center justify-center gap-3">
+             <Calculator className="w-8 h-8" aria-label="Icône calculatrice" />
+             Simulateur de Moyenne BUT MMI
+           </h1>
+           <p className="text-violet-700 font-medium text-sm max-w-lg mx-auto leading-relaxed">
+             Calculez vos moyennes par semestre en fonction des coefficients officiels de la réforme BUT MMI (Métiers du Multimédia et de l'Internet).
+           </p>
         </div>
         <div className="p-8 bg-slate-50 grid grid-cols-1 md:grid-cols-2 gap-4">
           {options.map((opt) => (
-            <button key={opt.id} onClick={() => onComplete(opt.trackId, opt.semesterId)} className="flex items-center p-5 rounded-2xl border-2 border-transparent bg-white shadow-sm hover:border-violet-300 hover:shadow-xl hover:-translate-y-1 transition-all group text-left">
-              <div className="bg-violet-50 p-3 rounded-xl mr-4 group-hover:bg-violet-100 transition-colors text-violet-500">{opt.icon}</div>
+            <button 
+              key={opt.id} 
+              onClick={() => onComplete(opt.trackId, opt.semesterId)} 
+              aria-label={opt.ariaLabel}
+              className="flex items-center p-5 rounded-2xl border-2 border-transparent bg-white shadow-sm hover:border-violet-300 hover:shadow-xl hover:-translate-y-1 transition-all group text-left"
+            >
+              <div className="bg-violet-50 p-3 rounded-xl mr-4 group-hover:bg-violet-100 transition-colors text-violet-500" aria-hidden="true">{opt.icon}</div>
               <div>
                 <div className="font-bold text-slate-800 text-lg leading-tight group-hover:text-violet-600">{opt.label}</div>
                 <div className="text-[11px] text-slate-400 font-bold uppercase mt-1 tracking-wider">{opt.desc}</div>
@@ -139,10 +147,10 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
   return (
     <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden mb-6 transition-all duration-300 ${isEliminatory ? 'border-rose-300 ring-4 ring-rose-50' : 'border-slate-100 hover:border-violet-200 hover:shadow-md'}`}>
       <div className="px-6 py-5 flex justify-between items-center bg-white relative">
-        <div className="absolute left-0 top-0 bottom-0 w-2" style={{ backgroundColor: comp.color }}></div>
+        <div className="absolute left-0 top-0 bottom-0 w-2" style={{ backgroundColor: comp.color }} aria-hidden="true"></div>
         <div className="flex-1">
           <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
-            <span className="px-2 py-0.5 rounded-lg text-xs text-white bg-slate-800 font-mono tracking-tighter">{comp.id}</span>
+            <span className="px-2 py-0.5 rounded-lg text-xs text-white bg-slate-800 font-mono tracking-tighter" aria-label={`Code compétence ${comp.id}`}>{comp.id}</span>
             {comp.name}
           </h3>
           {isEliminatory && <span className="text-rose-500 font-black flex items-center gap-1 text-[10px] uppercase mt-1 tracking-tighter"><AlertTriangle className="w-3 h-3" /> Note éliminatoire (&lt; 8)</span>}
@@ -163,8 +171,14 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
             <div className="space-y-3">
               {resources.map((mod: any) => (
                 <div key={mod.id} className="flex items-center justify-between group">
-                  <span className="text-sm font-medium text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors">{mod.name}</span>
-                  <input type="number" min="0" max="20" step="0.25" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                  <label htmlFor={`grade-${mod.id}`} className="text-sm font-medium text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors">{mod.name}</label>
+                  <input 
+                    id={`grade-${mod.id}`}
+                    type="number" 
+                    min="0" max="20" step="0.25" placeholder="-" 
+                    value={grades[mod.id] ?? ''} 
+                    onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                    aria-label={`Saisir la note pour ${mod.name}`}
                     className={`w-16 h-9 text-center text-sm font-black border-2 rounded-xl focus:ring-4 focus:ring-violet-100 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400'}`} />
                 </div>
               ))}
@@ -176,9 +190,15 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
             </h4>
             <div className="space-y-3">
               {saes.map((mod: any) => (
-                <div key={mod.id} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-600 leading-tight flex-1 mr-4">{mod.name}</span>
-                  <input type="number" min="0" max="20" step="0.25" placeholder="-" value={grades[mod.id] ?? ''} onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                <div key={mod.id} className="flex items-center justify-between group">
+                  <label htmlFor={`grade-${mod.id}`} className="text-sm font-medium text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors">{mod.name}</label>
+                  <input 
+                    id={`grade-${mod.id}`}
+                    type="number" 
+                    min="0" max="20" step="0.25" placeholder="-" 
+                    value={grades[mod.id] ?? ''} 
+                    onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                    aria-label={`Saisir la note pour ${mod.name}`}
                     className={`w-16 h-9 text-center text-sm font-black border-2 rounded-xl focus:ring-4 focus:ring-violet-100 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400'}`} />
                 </div>
               ))}
@@ -198,7 +218,6 @@ const App: React.FC = () => {
 
   const activeTrack = useMemo(() => TRACKS.find(t => t.id === activeTrackId) || TRACKS[0], [activeTrackId]);
   
-  // Sécurité pour s'assurer que le semestre existe dans le parcours choisi
   const activeSemester = useMemo(() => {
     return activeTrack.semesters.find(s => s.id === activeSemesterId) || activeTrack.semesters[0];
   }, [activeTrack, activeSemesterId]);
@@ -237,12 +256,12 @@ const App: React.FC = () => {
       <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
         <aside className={`fixed inset-y-0 left-0 z-40 w-72 bg-slate-900 text-white transform transition-transform duration-500 md:static md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col shadow-2xl print:hidden`}>
           <div className="p-8 border-b border-slate-800/50">
-            <h1 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
+            <div className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
               <div className="w-10 h-10 bg-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <Calculator className="w-6 h-6 text-white" />
+                <Calculator className="w-6 h-6 text-white" aria-label="Icône calculatrice" />
               </div> 
               MMI SIM
-            </h1>
+            </div>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-3">Édition Spéciale</p>
           </div>
           
@@ -250,6 +269,7 @@ const App: React.FC = () => {
             <div className="px-4 mb-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Semestres ({activeTrack.name})</div>
             {activeTrack.semesters.map(sem => (
               <button key={sem.id} onClick={() => { setActiveSemesterId(sem.id); setIsMobileMenuOpen(false); }}
+                aria-label={`Accéder au ${sem.name}`}
                 className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl text-sm font-bold transition-all ${activeSemesterId === sem.id ? 'bg-violet-600 text-white shadow-xl shadow-violet-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                 {sem.name} <ChevronRight className={`w-4 h-4 transition-transform ${activeSemesterId === sem.id ? 'rotate-90' : ''}`} />
               </button>
@@ -258,8 +278,8 @@ const App: React.FC = () => {
 
           <div className="p-6 border-t border-slate-800 space-y-4">
             <div className="grid grid-cols-2 gap-3">
-               <button onClick={() => window.print()} className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
-                  <Printer className="w-4 h-4 mb-1" /> EXPORT
+               <button onClick={() => window.print()} aria-label="Exporter les notes en PDF ou Imprimer" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
+                  <Printer className="w-4 h-4 mb-1" aria-hidden="true" /> EXPORT
                </button>
                <button onClick={() => {
                  const data = JSON.stringify({ grades, track: activeTrackId, sem: activeSemesterId });
@@ -269,11 +289,11 @@ const App: React.FC = () => {
                  a.href = url;
                  a.download = `notes_mmi_zineb.json`;
                  a.click();
-               }} className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
-                  <Download className="w-4 h-4 mb-1" /> SAUVER
+               }} aria-label="Sauvegarder mes notes sur mon ordinateur" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
+                  <Download className="w-4 h-4 mb-1" aria-hidden="true" /> SAUVER
                </button>
             </div>
-            <button onClick={() => { if(confirm('Voulez-vous vraiment effacer toutes vos notes ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 rounded-2xl text-xs font-black transition-all border border-rose-900/30">
+            <button onClick={() => { if(confirm('Voulez-vous vraiment effacer toutes vos notes ?')) setGrades({}); }} aria-label="Réinitialiser toutes les notes saisies" className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 rounded-2xl text-xs font-black transition-all border border-rose-900/30">
                <RotateCcw className="w-3 h-3" /> RÉINITIALISER
             </button>
             <div className="pt-4 text-center">
@@ -288,7 +308,7 @@ const App: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-1">
                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">{activeSemester.name}</h2>
-                 <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-[10px] font-black rounded uppercase">{activeSemesterId}</span>
+                 <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-[10px] font-black rounded uppercase" aria-label={`Semestre ${activeSemesterId}`}>{activeSemesterId}</span>
               </div>
               <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{activeTrack.name}</p>
             </div>
@@ -301,7 +321,7 @@ const App: React.FC = () => {
                  </div>
                </div>
                <div className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isValidated ? 'bg-violet-500 text-white shadow-violet-200' : 'bg-white text-slate-300 border border-slate-100'}`}>
-                 {isValidated ? <Award className="w-8 h-8" /> : <Calculator className="w-8 h-8" />}
+                 {isValidated ? <Award className="w-8 h-8" aria-label="Diplôme obtenu" /> : <Calculator className="w-8 h-8" aria-label="Icône calcul" />}
                </div>
             </div>
           </header>
@@ -310,9 +330,9 @@ const App: React.FC = () => {
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
               <div className="lg:col-span-8 space-y-8">
                 {failedCompetencies.length > 0 && (
-                  <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse">
+                  <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse" role="alert">
                     <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-6 h-6 text-rose-500" />
+                      <AlertCircle className="w-6 h-6 text-rose-500" aria-hidden="true" />
                     </div>
                     <div>
                       <div className="text-sm font-black uppercase tracking-tight">Attention : Validation impossible</div>
@@ -325,11 +345,17 @@ const App: React.FC = () => {
                   <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={grades} onGradeChange={handleGradeChange} />
                 ))}
                 
-                <footer className="pt-10 pb-20 border-t border-slate-200 text-center opacity-40 hover:opacity-100 transition-opacity">
-                   <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Simulation BUT MMI - Par Zineb A. - 2025</p>
-                   <div className="mt-4 flex justify-center gap-4">
-                      <a href="https://ai.google.dev" target="_blank" className="text-[10px] font-bold flex items-center gap-1 hover:text-violet-600 transition-colors"><ExternalLink className="w-3 h-3" /> Powered by Gemini</a>
-                      <span className="text-[10px] font-bold">•</span>
+                <footer className="pt-10 pb-20 border-t border-slate-200 text-center text-slate-400">
+                   <div className="mb-6 max-w-lg mx-auto">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-slate-500">À propos</h4>
+                      <p className="text-[11px] leading-relaxed font-medium">
+                        Cet outil d'aide à l'orientation est conçu pour les étudiants en MMI souhaitant simuler leurs résultats aux SAÉ et ressources. Les calculs sont basés sur les maquettes pédagogiques nationales.
+                      </p>
+                   </div>
+                   <p className="text-xs font-black uppercase tracking-[0.4em]">Simulation BUT MMI - Par Zineb A. - 2025</p>
+                   <div className="mt-4 flex justify-center items-center gap-4">
+                      <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold flex items-center gap-1 hover:text-violet-600 transition-colors"><ExternalLink className="w-3 h-3" aria-hidden="true" /> Powered by Gemini</a>
+                      <span className="text-[10px] font-bold" aria-hidden="true">•</span>
                       <span className="text-[10px] font-bold">Vérification Google OK</span>
                    </div>
                 </footer>
@@ -338,7 +364,7 @@ const App: React.FC = () => {
               <div className="lg:col-span-4 space-y-8 print:hidden">
                 <div className="bg-white p-8 rounded-3xl shadow-xl border border-violet-100 sticky top-10">
                   <h3 className="text-[11px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em] flex items-center gap-3">
-                    <div className="w-2 h-5 bg-violet-400 rounded-full"></div> Visualisation UE
+                    <div className="w-2 h-5 bg-violet-400 rounded-full" aria-hidden="true"></div> Visualisation UE
                   </h3>
                   <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
@@ -354,7 +380,7 @@ const App: React.FC = () => {
 
                   <div className="mt-10 space-y-4">
                     <div className="bg-slate-900 rounded-2xl p-6 text-white overflow-hidden relative">
-                       <div className="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl"></div>
+                       <div className="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl" aria-hidden="true"></div>
                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-5">Statut de l'année</h4>
                        <div className="space-y-4">
                           <div className="flex justify-between items-center group">
@@ -384,7 +410,11 @@ const App: React.FC = () => {
 
       <OnboardingModal isOpen={isOnboardingOpen} onComplete={(t: string, s: string) => { setActiveTrackId(t); setActiveSemesterId(s); setIsOnboardingOpen(false); }} />
       
-      <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden fixed bottom-8 right-8 w-16 h-16 bg-violet-500 text-white rounded-2xl shadow-2xl flex items-center justify-center z-50 active:scale-95 transition-all mobile-fab">
+      <button 
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+        aria-label={isMobileMenuOpen ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation"}
+        className="md:hidden fixed bottom-8 right-8 w-16 h-16 bg-violet-500 text-white rounded-2xl shadow-2xl flex items-center justify-center z-50 active:scale-95 transition-all mobile-fab"
+      >
         {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
       </button>
     </div>
