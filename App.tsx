@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, Lock, Eye } from 'lucide-react';
+import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, Lock, Eye, CheckCircle } from 'lucide-react';
 
 // --- Fonctions de calcul ---
 
@@ -89,35 +89,27 @@ const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
 );
 
 const LockModal = ({ isOpen, onUnlock, onClose }: { isOpen: boolean, onUnlock: () => void, onClose: () => void }) => {
-  const [countdown, setCountdown] = useState<number>(8);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [isReady, setIsReady] = useState(false);
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (isOpen) {
-      setCountdown(8);
-      setIsReady(false);
-      
-      // On lance le décompte dès l'ouverture
-      timerRef.current = window.setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            if (timerRef.current) clearInterval(timerRef.current);
-            setIsReady(true);
-            return 0;
-          }
-          return prev - 1;
-        });
+    if (countdown !== null && countdown > 0) {
+      timerRef.current = window.setTimeout(() => {
+        setCountdown(countdown - 1);
       }, 1000);
+    } else if (countdown === 0) {
+      setIsReady(true);
+      setCountdown(null);
     }
-    
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isOpen]);
+  }, [countdown]);
 
   const handleFollowClick = () => {
     window.open("https://www.linkedin.com/in/zineb-anssafou", "_blank", "noopener,noreferrer");
+    setCountdown(8);
   };
 
   if (!isOpen) return null;
@@ -138,18 +130,19 @@ const LockModal = ({ isOpen, onUnlock, onClose }: { isOpen: boolean, onUnlock: (
         </p>
 
         {isReady && (
-           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-xs font-bold animate-in fade-in slide-in-from-top-2">
-              ✨ Merci de votre soutien ! Vous pouvez maintenant accéder à vos résultats.
+           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-xs font-bold animate-in fade-in slide-in-from-top-2 flex items-center gap-2 justify-center">
+              <CheckCircle className="w-4 h-4" /> Merci de votre soutien ! Accès débloqué.
            </div>
         )}
 
         <div className="space-y-3">
           <button 
             onClick={handleFollowClick}
-            className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 group bg-[#0077B5] text-white shadow-[#0077B5]/20 hover:scale-105"
+            disabled={countdown !== null}
+            className={`flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 group ${countdown !== null ? 'bg-slate-100 text-slate-400' : 'bg-[#0077B5] text-white shadow-[#0077B5]/20 hover:scale-105'}`}
           >
             <Linkedin className="w-5 h-5" />
-            GO FOLLOW (LINKEDIN)
+            {countdown !== null ? `VÉRIFICATION EN COURS... ${countdown}s` : "GO FOLLOW (LINKEDIN)"}
           </button>
           
           <button 
@@ -157,7 +150,7 @@ const LockModal = ({ isOpen, onUnlock, onClose }: { isOpen: boolean, onUnlock: (
             disabled={!isReady}
             className={`w-full py-4 rounded-2xl font-black text-sm transition-all active:scale-95 ${isReady ? 'bg-violet-600 text-white shadow-lg shadow-violet-200 hover:bg-violet-700 hover:scale-105' : 'bg-slate-100 text-slate-300 cursor-not-allowed border-2 border-slate-200'}`}
           >
-            {isReady ? "C'EST FAIT, ACCÉDER AUX RÉSULTATS" : `VÉRIFICATION EN COURS... ${countdown}s`}
+            C'EST FAIT, VOIR MON RÉSULTAT
           </button>
         </div>
         <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
@@ -172,10 +165,10 @@ const OnboardingModal = ({ isOpen, onComplete }: any) => {
   if (!isOpen) return null;
 
   const options = [
-    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8" />, trackId: 'crea', semesterId: 'S1', desc: 'S1 & S2 Tronc commun', ariaLabel: 'Calculer ma moyenne pour la 1ère année de BUT MMI' },
-    { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8" />, trackId: 'crea', semesterId: 'S3-CN', desc: 'Parcours Créa (S3-S6)', ariaLabel: 'Calculer ma moyenne pour le parcours Création Numérique' },
-    { id: 'dev', label: 'Développement Web', icon: <Terminal className="w-8 h-8" />, trackId: 'dev', semesterId: 'S1', desc: 'Bientôt disponible', ariaLabel: 'Calculer ma moyenne pour le parcours Développement Web' },
-    { id: 'strat', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8" />, trackId: 'strat', semesterId: 'S1', desc: 'Bientôt disponible', ariaLabel: 'Calculer ma moyenne pour le parcours Stratégie de Communication' },
+    { id: '1annee', label: '1ère année (Commun)', icon: <GraduationCap className="w-8 h-8" />, trackId: 'crea', filter: '1-2', desc: 'S1 & S2 Tronc commun' },
+    { id: 'crea', label: 'Création Numérique', icon: <Palette className="w-8 h-8" />, trackId: 'crea', filter: '1-6', desc: 'Parcours complet (S1-S6)' },
+    { id: 'dw', label: 'Développement Web', icon: <Terminal className="w-8 h-8" />, trackId: 'dw', filter: '1-6', desc: 'Parcours complet (S1-S6)' },
+    { id: 'sc', label: 'Stratégie de Com', icon: <Presentation className="w-8 h-8" />, trackId: 'sc', filter: '1-6', desc: 'Parcours complet (S1-S6)' },
   ];
 
   return (
@@ -188,15 +181,14 @@ const OnboardingModal = ({ isOpen, onComplete }: any) => {
              Simulateur de Moyenne BUT MMI
            </h1>
            <p className="text-violet-700 font-medium text-sm max-w-lg mx-auto leading-relaxed">
-             Calculez vos moyennes par semestre en fonction des coefficients officiels de la réforme BUT MMI (Métiers du Multimédia et de l'Internet).
+             Calculez vos moyennes par semestre en fonction des coefficients officiels de la réforme BUT MMI (Maquettes 2025).
            </p>
         </div>
         <div className="p-8 bg-slate-50 grid grid-cols-1 md:grid-cols-2 gap-4">
           {options.map((opt) => (
             <button 
               key={opt.id} 
-              onClick={() => onComplete(opt.trackId, opt.semesterId)} 
-              aria-label={opt.ariaLabel}
+              onClick={() => onComplete(opt.trackId, opt.filter)} 
               className="flex items-center p-5 rounded-2xl border-2 border-transparent bg-white shadow-sm hover:border-violet-300 hover:shadow-xl hover:-translate-y-1 transition-all group text-left"
             >
               <div className="bg-violet-50 p-3 rounded-xl mr-4 group-hover:bg-violet-100 transition-colors text-violet-500" aria-hidden="true">{opt.icon}</div>
@@ -221,7 +213,6 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
   const average = calculateCompetenceAverage(comp, semester, grades);
   const resources = semester.modules.filter((m: any) => m.type === ModuleType.RESOURCE && m.weightings.some((w: any) => w.competenceId === comp.id));
   const saes = semester.modules.filter((m: any) => m.type === ModuleType.SAE && m.weightings.some((w: any) => w.competenceId === comp.id));
-  
   const isEliminatory = average < 8 && Object.keys(grades).length > 0;
   
   return (
@@ -230,7 +221,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
         <div className="absolute left-0 top-0 bottom-0 w-2" style={{ backgroundColor: comp.color }} aria-hidden="true"></div>
         <div className="flex-1">
           <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
-            <span className="px-2 py-0.5 rounded-lg text-xs text-white bg-slate-800 font-mono tracking-tighter" aria-label={`Code compétence ${comp.id}`}>{comp.id}</span>
+            <span className="px-2 py-0.5 rounded-lg text-xs text-white bg-slate-800 font-mono tracking-tighter">{comp.id}</span>
             {comp.name}
           </h3>
           {isEliminatory && <span className="text-rose-500 font-black flex items-center gap-1 text-[10px] uppercase mt-1 tracking-tighter"><AlertTriangle className="w-3 h-3" /> Note éliminatoire (&lt; 8)</span>}
@@ -245,9 +236,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
       </div>
       <div className="px-6 py-6 bg-slate-50/40 border-t border-slate-50 grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-               <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div> Ressources
-            </h4>
+            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">Ressources</h4>
             <div className="space-y-3">
               {resources.map((mod: any) => (
                 <div key={mod.id} className="flex items-center justify-between group">
@@ -258,16 +247,13 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                     min="0" max="20" step="0.25" placeholder="-" 
                     value={grades[mod.id] ?? ''} 
                     onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                    aria-label={`Saisir la note pour ${mod.name}`}
                     className={`w-16 h-9 text-center text-sm font-black border-2 rounded-xl focus:ring-4 focus:ring-violet-100 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400'}`} />
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="text-[10px] font-black text-violet-300 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-               <div className="w-1.5 h-1.5 rounded-full bg-violet-300"></div> SAÉ
-            </h4>
+            <h4 className="text-[10px] font-black text-violet-300 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">SAÉ</h4>
             <div className="space-y-3">
               {saes.map((mod: any) => (
                 <div key={mod.id} className="flex items-center justify-between group">
@@ -278,7 +264,6 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                     min="0" max="20" step="0.25" placeholder="-" 
                     value={grades[mod.id] ?? ''} 
                     onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                    aria-label={`Saisir la note pour ${mod.name}`}
                     className={`w-16 h-9 text-center text-sm font-black border-2 rounded-xl focus:ring-4 focus:ring-violet-100 outline-none transition-all ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400'}`} />
                 </div>
               ))}
@@ -291,6 +276,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
 
 const App: React.FC = () => {
   const [activeTrackId, setActiveTrackId] = useState<string>('crea');
+  const [semesterFilter, setSemesterFilter] = useState<string>('1-2'); // '1-2' ou '1-6'
   const [activeSemesterId, setActiveSemesterId] = useState<string>('S1');
   const [grades, setGrades] = useState<GradeMap>({});
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
@@ -299,7 +285,7 @@ const App: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Charger les données depuis le localStorage au démarrage
+  // Charger les données
   useEffect(() => {
     const savedData = localStorage.getItem('mmi_sim_data');
     if (savedData) {
@@ -308,24 +294,33 @@ const App: React.FC = () => {
         if (parsed.grades) setGrades(parsed.grades);
         if (parsed.track) setActiveTrackId(parsed.track);
         if (parsed.sem) setActiveSemesterId(parsed.sem);
+        if (parsed.filter) setSemesterFilter(parsed.filter);
         if (parsed.hasValidated === true) setHasValidated(true);
-      } catch (e) {
-        console.error("Erreur chargement localStorage", e);
-      }
+      } catch (e) { console.error(e); }
     }
   }, []);
 
-  // Sauvegarder automatiquement dans le localStorage lors de changements
+  // Sauvegarde auto
   useEffect(() => {
-    const data = { grades, track: activeTrackId, sem: activeSemesterId, hasValidated };
+    const data = { grades, track: activeTrackId, sem: activeSemesterId, filter: semesterFilter, hasValidated };
     localStorage.setItem('mmi_sim_data', JSON.stringify(data));
-  }, [grades, activeTrackId, activeSemesterId, hasValidated]);
+  }, [grades, activeTrackId, activeSemesterId, semesterFilter, hasValidated]);
 
   const activeTrack = useMemo(() => TRACKS.find(t => t.id === activeTrackId) || TRACKS[0], [activeTrackId]);
   
+  // Filtrage intelligent des semestres
+  const filteredSemesters = useMemo(() => {
+    return activeTrack.semesters.filter(s => {
+      const numMatch = s.id.match(/\d+/);
+      const num = numMatch ? parseInt(numMatch[0]) : 1;
+      if (semesterFilter === '1-2') return num <= 2;
+      return true; // Affiche tout pour 1-6
+    });
+  }, [activeTrack, semesterFilter]);
+
   const activeSemester = useMemo(() => {
-    return activeTrack.semesters.find(s => s.id === activeSemesterId) || activeTrack.semesters[0];
-  }, [activeTrack, activeSemesterId]);
+    return filteredSemesters.find(s => s.id === activeSemesterId) || filteredSemesters[0];
+  }, [filteredSemesters, activeSemesterId]);
   
   const globalAverage = useMemo(() => calculateSemesterGlobalAverage(activeSemester, grades), [activeSemester, grades]);
   
@@ -341,14 +336,15 @@ const App: React.FC = () => {
     setGrades(prev => {
       if (value === '') { const n = {...prev}; delete n[moduleId]; return n; }
       const num = parseFloat(value);
-      if (isNaN(num)) return prev;
-      return {...prev, [moduleId]: Math.min(20, Math.max(0, num))};
+      return {...prev, [moduleId]: Math.min(20, Math.max(0, isNaN(num) ? 0 : num))};
     });
   };
 
-  const handleOnboardingComplete = (t: string, s: string) => {
+  const handleOnboardingComplete = (t: string, f: string) => {
+    setGrades({});
     setActiveTrackId(t);
-    setActiveSemesterId(s);
+    setSemesterFilter(f);
+    setActiveSemesterId('S1');
     setIsOnboardingOpen(false);
   };
 
@@ -357,46 +353,13 @@ const App: React.FC = () => {
       setIsLockModalOpen(true);
       return;
     }
-    // Si déjà validé, on fait juste défiler vers le haut ou rafraîchir la vue si nécessaire
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleUnlock = () => {
     setHasValidated(true);
     setIsLockModalOpen(false);
-    // On rappelle la fonction de calcul (scrolling ou affichage immédiat)
-    handleCalculateClick();
-  };
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const data = JSON.parse(content);
-        
-        // Validation basique des données
-        if (!data.grades || typeof data.grades !== 'object') {
-          throw new Error("Le fichier JSON ne contient pas de données de notes valides.");
-        }
-
-        // Mise à jour de l'état
-        setGrades(data.grades);
-        if (data.track) setActiveTrackId(data.track);
-        if (data.sem) setActiveSemesterId(data.sem);
-        
-        window.alert("Importation réussie ! Vos notes ont été restaurées.");
-      } catch (err) {
-        console.error("Erreur d'importation", err);
-        window.alert("Erreur : Le fichier est corrompu ou n'est pas au bon format.");
-      }
-    };
-    reader.readAsText(file);
-    // Reset de l'input pour permettre de réimporter le même fichier
-    event.target.value = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const radarData = useMemo(() => {
@@ -415,19 +378,15 @@ const App: React.FC = () => {
         <aside className={`fixed inset-y-0 left-0 z-40 w-72 bg-slate-900 text-white transform transition-transform duration-500 md:static md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col shadow-2xl print:hidden`}>
           <div className="p-8 border-b border-slate-800/50">
             <div className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
-              <div className="w-10 h-10 bg-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <Calculator className="w-6 h-6 text-white" aria-label="Icône calculatrice" />
-              </div> 
+              <div className="w-10 h-10 bg-violet-500 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20"><Calculator className="w-6 h-6 text-white" /></div> 
               MMI SIM
             </div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-3">Édition Spéciale</p>
           </div>
           
           <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
-            <div className="px-4 mb-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Semestres ({activeTrack.name})</div>
-            {activeTrack.semesters.map(sem => (
+            <div className="px-4 mb-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Semestres ({semesterFilter === '1-2' ? 'BUT1' : activeTrack.name})</div>
+            {filteredSemesters.map(sem => (
               <button key={sem.id} onClick={() => { setActiveSemesterId(sem.id); setIsMobileMenuOpen(false); }}
-                aria-label={`Accéder au ${sem.name}`}
                 className={`w-full flex items-center justify-between px-4 py-4 rounded-2xl text-sm font-bold transition-all ${activeSemesterId === sem.id ? 'bg-violet-600 text-white shadow-xl shadow-violet-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
                 {sem.name} <ChevronRight className={`w-4 h-4 transition-transform ${activeSemesterId === sem.id ? 'rotate-90' : ''}`} />
               </button>
@@ -435,72 +394,51 @@ const App: React.FC = () => {
           </nav>
 
           <div className="p-6 border-t border-slate-800 space-y-4">
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              style={{ display: 'none' }} 
-              accept=".json" 
-              onChange={handleImport}
-            />
+            <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".json" onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (re) => {
+                try {
+                  const content = JSON.parse(re.target?.result as string);
+                  if (content.grades) { setGrades(content.grades); window.alert("Import réussi !"); }
+                } catch (err) { window.alert("Fichier invalide."); }
+              };
+              reader.readAsText(file);
+            }} />
             <div className="grid grid-cols-2 gap-3">
-               <button onClick={() => fileInputRef.current?.click()} aria-label="Importer des notes depuis un fichier JSON" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
-                  <Upload className="w-4 h-4 mb-1" aria-hidden="true" /> IMPORTER
-               </button>
+               <button onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700"><Upload className="w-4 h-4 mb-1" /> IMPORTER</button>
                <button onClick={() => {
-                 const data = JSON.stringify({ grades, track: activeTrackId, sem: activeSemesterId });
-                 const blob = new Blob([data], {type: 'application/json'});
-                 const url = URL.createObjectURL(blob);
-                 const a = document.createElement('a');
-                 a.href = url;
-                 a.download = `notes_mmi_zineb.json`;
-                 a.click();
-               }} aria-label="Sauvegarder mes notes sur mon ordinateur" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
-                  <Download className="w-4 h-4 mb-1" aria-hidden="true" /> SAUVER
-               </button>
+                 const blob = new Blob([JSON.stringify({ grades, track: activeTrackId, sem: activeSemesterId, filter: semesterFilter })], {type: 'application/json'});
+                 const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `notes_mmi.json`; a.click();
+               }} className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700"><Download className="w-4 h-4 mb-1" /> SAUVER</button>
             </div>
-            <div className="grid grid-cols-1 gap-3">
-               <button onClick={() => window.print()} aria-label="Exporter les notes en PDF ou Imprimer" className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl text-xs font-black transition-all border border-slate-700">
-                  <Printer className="w-4 h-4" aria-hidden="true" /> EXPORTER PDF
-               </button>
-            </div>
-            <button onClick={() => { if(confirm('Voulez-vous vraiment effacer toutes vos notes ?')) setGrades({}); }} aria-label="Réinitialiser toutes les notes saisies" className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 rounded-2xl text-xs font-black transition-all border border-rose-900/30">
-               <RotateCcw className="w-3 h-3" /> RÉINITIALISER
-            </button>
-            <div className="pt-4 text-center">
-               <div className="text-[12px] font-black text-white/90">Zineb A.</div>
-               <div className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Conçu pour MMI</div>
-            </div>
+            <button onClick={() => { if(confirm('Effacer les notes ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 rounded-2xl text-xs font-black transition-all border border-rose-900/30"><RotateCcw className="w-3 h-3" /> RÉINITIALISER</button>
           </div>
         </aside>
 
         <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-          <header className="bg-white/80 backdrop-blur-md border-b border-violet-100 h-24 flex items-center justify-between px-8 flex-shrink-0 z-10 print:bg-white print:border-none">
+          <header className="bg-white/80 backdrop-blur-md border-b border-violet-100 h-24 flex items-center justify-between px-8 flex-shrink-0 z-10 print:hidden">
             <div>
               <div className="flex items-center gap-2 mb-1">
                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">{activeSemester.name}</h2>
-                 <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-[10px] font-black rounded uppercase" aria-label={`Semestre ${activeSemesterId}`}>{activeSemesterId}</span>
+                 <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-[10px] font-black rounded uppercase">{activeSemesterId}</span>
               </div>
-              <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{activeTrack.name}</p>
+              <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{semesterFilter === '1-2' ? 'Tronc Commun' : activeTrack.name}</p>
             </div>
             
             {!hasValidated ? (
-              <button 
-                onClick={handleCalculateClick}
-                className="group flex items-center gap-3 px-8 py-3.5 bg-violet-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
-              >
-                <Calculator className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                CALCULER MA MOYENNE
+              <button onClick={handleCalculateClick} className="group flex items-center gap-3 px-8 py-3.5 bg-violet-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-violet-200 hover:scale-105 active:scale-95 transition-all">
+                <Calculator className="w-5 h-5 group-hover:rotate-12" /> CALCULER MA MOYENNE
               </button>
             ) : (
               <div className={`px-8 py-3 rounded-2xl border-2 flex items-center gap-6 transition-all duration-700 animate-in fade-in slide-in-from-right-4 ${isValidated ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-100'}`}>
                 <div className="text-right">
                   <div className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Moyenne Générale</div>
-                  <div className={`text-4xl font-black leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>
-                    {globalAverage.toFixed(2)}
-                  </div>
+                  <div className={`text-4xl font-black leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>{globalAverage.toFixed(2)}</div>
                 </div>
-                <div className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isValidated ? 'bg-violet-500 text-white shadow-violet-200' : 'bg-white text-slate-300 border border-slate-100'}`}>
-                  {isValidated ? <Award className="w-8 h-8" aria-label="Diplôme obtenu" /> : <Calculator className="w-8 h-8" aria-label="Icône calcul" />}
+                <div className={`h-14 w-14 flex items-center justify-center rounded-2xl shadow-lg ${isValidated ? 'bg-violet-500 text-white' : 'bg-white text-slate-300'}`}>
+                  {isValidated ? <Award className="w-8 h-8" /> : <Calculator className="w-8 h-8" />}
                 </div>
               </div>
             )}
@@ -512,93 +450,45 @@ const App: React.FC = () => {
                 {hasValidated ? (
                   <>
                     {failedCompetencies.length > 0 && (
-                      <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse" role="alert">
-                        <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <AlertCircle className="w-6 h-6 text-rose-500" aria-hidden="true" />
-                        </div>
+                      <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse">
+                        <AlertCircle className="w-6 h-6 text-rose-500" />
                         <div>
-                          <div className="text-sm font-black uppercase tracking-tight">Attention : Validation impossible</div>
-                          <div className="text-xs font-medium opacity-80">Au moins une UE possède une moyenne inférieure à 8/20.</div>
+                          <div className="text-sm font-black uppercase tracking-tight">Non Validé</div>
+                          <div className="text-xs font-medium opacity-80">Moyenne UE inférieure à 8/20 détectée.</div>
                         </div>
                       </div>
                     )}
-                    
                     {activeSemester.competencies.map(comp => (
                       <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={grades} onGradeChange={handleGradeChange} />
                     ))}
                   </>
                 ) : (
                   <div className="bg-white rounded-3xl p-12 border-2 border-dashed border-violet-200 text-center flex flex-col items-center justify-center min-h-[400px]">
-                    <div className="w-20 h-20 bg-violet-100 rounded-3xl flex items-center justify-center mb-6 text-violet-500 shadow-inner">
-                      <Lock className="w-10 h-10" />
-                    </div>
-                    <h2 className="text-2xl font-black text-slate-800 mb-4">Calculateur verrouillé</h2>
-                    <p className="text-slate-500 max-w-sm mb-8 font-medium">Saisissez vos notes dans les UE ci-dessous, puis cliquez sur le bouton "Calculer" pour débloquer votre analyse complète.</p>
-                    
-                    <div className="w-full space-y-6">
-                      {activeSemester.competencies.map(comp => (
-                        <div key={comp.id} className="opacity-50 grayscale pointer-events-none blur-[1px]">
-                          <CompetenceCard comp={comp} semester={activeSemester} grades={grades} onGradeChange={() => {}} />
-                        </div>
-                      ))}
+                    <Lock className="w-12 h-12 text-violet-300 mb-6" />
+                    <h2 className="text-2xl font-black text-slate-800 mb-4">Analyse Verrouillée</h2>
+                    <p className="text-slate-500 max-w-sm mb-8 font-medium">Saisissez vos notes puis cliquez sur "Calculer" pour débloquer votre analyse complète.</p>
+                    <div className="w-full space-y-6 opacity-40 blur-[2px] pointer-events-none grayscale">
+                      {activeSemester.competencies.map(comp => <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={{}} />)}
                     </div>
                   </div>
                 )}
-                
-                <footer className="mt-16 overflow-hidden rounded-3xl border border-slate-100 shadow-sm print:hidden">
-                   <div className="bg-slate-50/80 backdrop-blur-sm p-8 text-center">
-                      <div className="mb-8 max-w-lg mx-auto">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-3 text-slate-500">À propos</h4>
-                        <p className="text-[11px] leading-relaxed font-medium text-slate-400">
-                          Cet outil d'aide à l'orientation est conçu pour les étudiants en MMI souhaitant simuler leurs résultats aux SAÉ et ressources. Les calculs sont basés sur les maquettes pédagogiques nationales.
-                        </p>
-                      </div>
-                      
-                      <div className="py-6 border-t border-slate-200/60 flex flex-col items-center gap-4">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Crédits</h4>
-                        <p className="text-sm font-bold text-slate-600">
-                          Développé par <span className="text-violet-600">Zineb A.</span> — Étudiante en MMI
-                        </p>
-                        
-                        <a 
-                          href="https://www.linkedin.com/in/zineb-anssafou" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="mt-2 flex items-center gap-3 px-6 py-2.5 bg-[#0077B5] text-white rounded-xl font-bold text-xs shadow-lg shadow-[#0077B5]/20 transition-all hover:scale-105 active:scale-95 group"
-                        >
-                          <Linkedin className="w-4 h-4 group-hover:animate-pulse" />
-                          LinkedIn
-                        </a>
-                      </div>
-                      
-                      <div className="mt-8 pt-6 border-t border-slate-200/40 flex justify-center items-center gap-6">
-                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300">© 2025 MMI SIMULATEUR</p>
-                        <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-slate-300 flex items-center gap-1 hover:text-violet-600 transition-colors"><ExternalLink className="w-3 h-3" /> Powered by Gemini</a>
-                      </div>
-                   </div>
+                <footer className="mt-16 rounded-3xl border border-slate-100 p-8 text-center bg-white/50 print:hidden">
+                   <p className="text-sm font-bold text-slate-600 mb-4">Outil créé par <span className="text-violet-600 font-black">Zineb A.</span> — Étudiante en MMI</p>
+                   <a href="https://www.linkedin.com/in/zineb-anssafou" target="_blank" className="inline-flex items-center gap-2 px-6 py-2 bg-[#0077B5] text-white rounded-xl font-bold text-xs"><Linkedin className="w-4 h-4" /> Suivre sur LinkedIn</a>
                 </footer>
               </div>
 
               <div className="lg:col-span-4 space-y-8 print:hidden">
-                <div className="bg-white p-8 rounded-3xl shadow-xl border border-violet-100 sticky top-10 overflow-hidden">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-violet-100 sticky top-10 overflow-hidden min-h-[500px]">
                   {!hasValidated && (
-                    <div className="absolute inset-0 z-20 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                       <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mb-4 text-violet-600">
-                          <Eye className="w-8 h-8" />
-                       </div>
-                       <h3 className="font-black text-slate-800 text-lg mb-2">Résultats verrouillés</h3>
-                       <p className="text-xs font-medium text-slate-400 mb-6">Suivez-moi sur LinkedIn pour visualiser vos statistiques et votre radar.</p>
-                       <button 
-                         onClick={handleCalculateClick}
-                         className="px-6 py-2 bg-violet-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
-                       >
-                         DÉBLOQUER
-                       </button>
+                    <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                       <Eye className="w-10 h-10 text-violet-500 mb-4" />
+                       <h3 className="font-black text-slate-800 text-lg mb-2">Radar Verrouillé</h3>
+                       <p className="text-xs font-medium text-slate-400 mb-6">Validez les étapes pour débloquer le graphique.</p>
+                       <button onClick={handleCalculateClick} className="px-6 py-2 bg-violet-600 text-white rounded-xl font-bold text-xs shadow-lg">DÉBLOQUER</button>
                     </div>
                   )}
-                  <h3 className="text-[11px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em] flex items-center gap-3">
-                    <div className="w-2 h-5 bg-violet-400 rounded-full" aria-hidden="true"></div> Visualisation UE
-                  </h3>
+                  <h3 className="text-[11px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em] flex items-center gap-3">Graphique Radar</h3>
                   <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
@@ -606,33 +496,9 @@ const App: React.FC = () => {
                         <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 800 }} />
                         <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
                         <Radar name="Moyenne" dataKey="A" stroke="#C4B5FD" strokeWidth={4} fill="#C4B5FD" fillOpacity={0.4} />
-                        <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                        <Tooltip />
                       </RadarChart>
                     </ResponsiveContainer>
-                  </div>
-
-                  <div className="mt-10 space-y-4">
-                    <div className="bg-slate-900 rounded-2xl p-6 text-white overflow-hidden relative">
-                       <div className="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl" aria-hidden="true"></div>
-                       <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-5">Statut de l'année</h4>
-                       <div className="space-y-4">
-                          <div className="flex justify-between items-center group">
-                             <span className="text-sm font-bold text-slate-400 group-hover:text-slate-200 transition-colors">Moyenne &ge; 10.00</span>
-                             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${globalAverage >= 10 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-600'}`}>
-                                {globalAverage >= 10 ? <Award className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                             </div>
-                          </div>
-                          <div className="flex justify-between items-center group">
-                             <span className="text-sm font-bold text-slate-400 group-hover:text-slate-200 transition-colors">Pas d'UE &lt; 8.00</span>
-                             <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${failedCompetencies.length === 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
-                                {failedCompetencies.length === 0 ? <Award className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                             </div>
-                          </div>
-                          <div className={`mt-6 pt-6 border-t border-slate-800 text-center font-black uppercase text-2xl tracking-tighter ${isValidated ? 'text-violet-400 animate-pulse' : 'text-slate-700'}`}>
-                             {isValidated ? 'VALIDÉ !' : 'EN ATTENTE'}
-                          </div>
-                       </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -642,19 +508,10 @@ const App: React.FC = () => {
       </div>
 
       <OnboardingModal isOpen={isOnboardingOpen} onComplete={handleOnboardingComplete} />
+      <LockModal isOpen={isLockModalOpen} onUnlock={handleUnlock} onClose={() => setIsLockModalOpen(false)} />
       
-      <LockModal 
-        isOpen={isLockModalOpen} 
-        onUnlock={handleUnlock} 
-        onClose={() => setIsLockModalOpen(false)} 
-      />
-      
-      <button 
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-        aria-label={isMobileMenuOpen ? "Fermer le menu de navigation" : "Ouvrir le menu de navigation"}
-        className="md:hidden fixed bottom-8 right-8 w-16 h-16 bg-violet-500 text-white rounded-2xl shadow-2xl flex items-center justify-center z-50 active:scale-95 transition-all mobile-fab"
-      >
-        {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
+      <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden fixed bottom-8 right-8 w-16 h-16 bg-violet-500 text-white rounded-2xl shadow-2xl flex items-center justify-center z-50">
+        {isMobileMenuOpen ? <X /> : <Menu />}
       </button>
     </div>
   );
