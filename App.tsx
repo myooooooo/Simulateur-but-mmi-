@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, Lock } from 'lucide-react';
+import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, Lock, Eye } from 'lucide-react';
 
 // --- Fonctions de calcul ---
 
@@ -88,34 +88,76 @@ const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
   </header>
 );
 
-const LockModal = ({ isOpen, onUnlock }: { isOpen: boolean, onUnlock: () => void }) => {
+const LockModal = ({ isOpen, onUnlock, onClose }: { isOpen: boolean, onUnlock: () => void, onClose: () => void }) => {
+  const [countdown, setCountdown] = useState<number>(8);
+  const [isReady, setIsReady] = useState(false);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCountdown(8);
+      setIsReady(false);
+      
+      // On lance le décompte dès l'ouverture
+      timerRef.current = window.setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            setIsReady(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isOpen]);
+
+  const handleFollowClick = () => {
+    window.open("https://www.linkedin.com/in/zineb-anssafou", "_blank", "noopener,noreferrer");
+  };
+
   if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-violet-950/80 backdrop-blur-xl p-4 animate-in fade-in zoom-in duration-300">
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden p-8 border border-white/20 text-center relative">
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 text-slate-300 hover:text-slate-500 transition-colors">
+          <X className="w-5 h-5" />
+        </button>
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-400 to-fuchsia-400"></div>
         <div className="w-20 h-20 bg-violet-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
           <Lock className="w-10 h-10 text-violet-600 animate-pulse" />
         </div>
-        <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">🚀 Déverrouillez le simulateur !</h2>
-        <p className="text-slate-500 font-medium text-sm leading-relaxed mb-8">
-          Ce projet est gratuit et maintenu par une étudiante. Soutenez mon travail en me suivant sur LinkedIn pour débloquer les résultats.
+        <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">🚀 Dernière étape !</h2>
+        <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
+          Suivez-moi sur LinkedIn pour débloquer votre résultat et soutenir ce projet gratuit maintenu par une étudiante.
         </p>
+
+        {isReady && (
+           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-xs font-bold animate-in fade-in slide-in-from-top-2">
+              ✨ Merci de votre soutien ! Vous pouvez maintenant accéder à vos résultats.
+           </div>
+        )}
+
         <div className="space-y-3">
-          <a 
-            href="https://www.linkedin.com/in/zineb-anssafou" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 w-full py-4 bg-[#0077B5] text-white rounded-2xl font-black text-sm shadow-xl shadow-[#0077B5]/20 transition-all hover:scale-105 active:scale-95 group"
+          <button 
+            onClick={handleFollowClick}
+            className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 group bg-[#0077B5] text-white shadow-[#0077B5]/20 hover:scale-105"
           >
             <Linkedin className="w-5 h-5" />
-            ME SUIVRE SUR LINKEDIN
-          </a>
+            GO FOLLOW (LINKEDIN)
+          </button>
+          
           <button 
             onClick={onUnlock}
-            className="w-full py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-sm transition-all hover:bg-slate-200 active:scale-95"
+            disabled={!isReady}
+            className={`w-full py-4 rounded-2xl font-black text-sm transition-all active:scale-95 ${isReady ? 'bg-violet-600 text-white shadow-lg shadow-violet-200 hover:bg-violet-700 hover:scale-105' : 'bg-slate-100 text-slate-300 cursor-not-allowed border-2 border-slate-200'}`}
           >
-            C'EST FAIT, ACCÉDER AUX RÉSULTATS
+            {isReady ? "C'EST FAIT, ACCÉDER AUX RÉSULTATS" : `VÉRIFICATION EN COURS... ${countdown}s`}
           </button>
         </div>
         <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
@@ -252,7 +294,8 @@ const App: React.FC = () => {
   const [activeSemesterId, setActiveSemesterId] = useState<string>('S1');
   const [grades, setGrades] = useState<GradeMap>({});
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
-  const [isLocked, setIsLocked] = useState(true);
+  const [hasValidated, setHasValidated] = useState(false);
+  const [isLockModalOpen, setIsLockModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -265,7 +308,7 @@ const App: React.FC = () => {
         if (parsed.grades) setGrades(parsed.grades);
         if (parsed.track) setActiveTrackId(parsed.track);
         if (parsed.sem) setActiveSemesterId(parsed.sem);
-        if (parsed.isLocked === false) setIsLocked(false);
+        if (parsed.hasValidated === true) setHasValidated(true);
       } catch (e) {
         console.error("Erreur chargement localStorage", e);
       }
@@ -274,9 +317,9 @@ const App: React.FC = () => {
 
   // Sauvegarder automatiquement dans le localStorage lors de changements
   useEffect(() => {
-    const data = { grades, track: activeTrackId, sem: activeSemesterId, isLocked };
+    const data = { grades, track: activeTrackId, sem: activeSemesterId, hasValidated };
     localStorage.setItem('mmi_sim_data', JSON.stringify(data));
-  }, [grades, activeTrackId, activeSemesterId, isLocked]);
+  }, [grades, activeTrackId, activeSemesterId, hasValidated]);
 
   const activeTrack = useMemo(() => TRACKS.find(t => t.id === activeTrackId) || TRACKS[0], [activeTrackId]);
   
@@ -307,6 +350,22 @@ const App: React.FC = () => {
     setActiveTrackId(t);
     setActiveSemesterId(s);
     setIsOnboardingOpen(false);
+  };
+
+  const handleCalculateClick = () => {
+    if (!hasValidated) {
+      setIsLockModalOpen(true);
+      return;
+    }
+    // Si déjà validé, on fait juste défiler vers le haut ou rafraîchir la vue si nécessaire
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUnlock = () => {
+    setHasValidated(true);
+    setIsLockModalOpen(false);
+    // On rappelle la fonction de calcul (scrolling ou affichage immédiat)
+    handleCalculateClick();
   };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -424,37 +483,67 @@ const App: React.FC = () => {
               <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">{activeTrack.name}</p>
             </div>
             
-            <div className={`px-8 py-3 rounded-2xl border-2 flex items-center gap-6 transition-all duration-700 ${isValidated ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-100'}`}>
-               <div className="text-right">
-                 <div className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Moyenne Générale</div>
-                 <div className={`text-4xl font-black leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>
-                   {globalAverage.toFixed(2)}
-                 </div>
-               </div>
-               <div className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isValidated ? 'bg-violet-500 text-white shadow-violet-200' : 'bg-white text-slate-300 border border-slate-100'}`}>
-                 {isValidated ? <Award className="w-8 h-8" aria-label="Diplôme obtenu" /> : <Calculator className="w-8 h-8" aria-label="Icône calcul" />}
-               </div>
-            </div>
+            {!hasValidated ? (
+              <button 
+                onClick={handleCalculateClick}
+                className="group flex items-center gap-3 px-8 py-3.5 bg-violet-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
+              >
+                <Calculator className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                CALCULER MA MOYENNE
+              </button>
+            ) : (
+              <div className={`px-8 py-3 rounded-2xl border-2 flex items-center gap-6 transition-all duration-700 animate-in fade-in slide-in-from-right-4 ${isValidated ? 'bg-violet-50 border-violet-200' : 'bg-slate-50 border-slate-100'}`}>
+                <div className="text-right">
+                  <div className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Moyenne Générale</div>
+                  <div className={`text-4xl font-black leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>
+                    {globalAverage.toFixed(2)}
+                  </div>
+                </div>
+                <div className={`h-14 w-14 flex items-center justify-center rounded-2xl transition-all shadow-lg ${isValidated ? 'bg-violet-500 text-white shadow-violet-200' : 'bg-white text-slate-300 border border-slate-100'}`}>
+                  {isValidated ? <Award className="w-8 h-8" aria-label="Diplôme obtenu" /> : <Calculator className="w-8 h-8" aria-label="Icône calcul" />}
+                </div>
+              </div>
+            )}
           </header>
 
           <div className="flex-1 overflow-y-auto p-6 md:p-10">
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
               <div className="lg:col-span-8 space-y-8">
-                {failedCompetencies.length > 0 && (
-                  <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse" role="alert">
-                    <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-6 h-6 text-rose-500" aria-hidden="true" />
+                {hasValidated ? (
+                  <>
+                    {failedCompetencies.length > 0 && (
+                      <div className="p-5 bg-rose-50 border-2 border-rose-100 rounded-3xl flex items-center gap-4 text-rose-700 shadow-sm animate-pulse" role="alert">
+                        <div className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <AlertCircle className="w-6 h-6 text-rose-500" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-black uppercase tracking-tight">Attention : Validation impossible</div>
+                          <div className="text-xs font-medium opacity-80">Au moins une UE possède une moyenne inférieure à 8/20.</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeSemester.competencies.map(comp => (
+                      <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={grades} onGradeChange={handleGradeChange} />
+                    ))}
+                  </>
+                ) : (
+                  <div className="bg-white rounded-3xl p-12 border-2 border-dashed border-violet-200 text-center flex flex-col items-center justify-center min-h-[400px]">
+                    <div className="w-20 h-20 bg-violet-100 rounded-3xl flex items-center justify-center mb-6 text-violet-500 shadow-inner">
+                      <Lock className="w-10 h-10" />
                     </div>
-                    <div>
-                      <div className="text-sm font-black uppercase tracking-tight">Attention : Validation impossible</div>
-                      <div className="text-xs font-medium opacity-80">Au moins une UE possède une moyenne inférieure à 8/20.</div>
+                    <h2 className="text-2xl font-black text-slate-800 mb-4">Calculateur verrouillé</h2>
+                    <p className="text-slate-500 max-w-sm mb-8 font-medium">Saisissez vos notes dans les UE ci-dessous, puis cliquez sur le bouton "Calculer" pour débloquer votre analyse complète.</p>
+                    
+                    <div className="w-full space-y-6">
+                      {activeSemester.competencies.map(comp => (
+                        <div key={comp.id} className="opacity-50 grayscale pointer-events-none blur-[1px]">
+                          <CompetenceCard comp={comp} semester={activeSemester} grades={grades} onGradeChange={() => {}} />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
-                
-                {activeSemester.competencies.map(comp => (
-                  <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={grades} onGradeChange={handleGradeChange} />
-                ))}
                 
                 <footer className="mt-16 overflow-hidden rounded-3xl border border-slate-100 shadow-sm print:hidden">
                    <div className="bg-slate-50/80 backdrop-blur-sm p-8 text-center">
@@ -491,7 +580,22 @@ const App: React.FC = () => {
               </div>
 
               <div className="lg:col-span-4 space-y-8 print:hidden">
-                <div className="bg-white p-8 rounded-3xl shadow-xl border border-violet-100 sticky top-10">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-violet-100 sticky top-10 overflow-hidden">
+                  {!hasValidated && (
+                    <div className="absolute inset-0 z-20 bg-white/40 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                       <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mb-4 text-violet-600">
+                          <Eye className="w-8 h-8" />
+                       </div>
+                       <h3 className="font-black text-slate-800 text-lg mb-2">Résultats verrouillés</h3>
+                       <p className="text-xs font-medium text-slate-400 mb-6">Suivez-moi sur LinkedIn pour visualiser vos statistiques et votre radar.</p>
+                       <button 
+                         onClick={handleCalculateClick}
+                         className="px-6 py-2 bg-violet-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-violet-200 hover:scale-105 active:scale-95 transition-all"
+                       >
+                         DÉBLOQUER
+                       </button>
+                    </div>
+                  )}
                   <h3 className="text-[11px] font-black text-slate-400 mb-8 uppercase tracking-[0.3em] flex items-center gap-3">
                     <div className="w-2 h-5 bg-violet-400 rounded-full" aria-hidden="true"></div> Visualisation UE
                   </h3>
@@ -539,7 +643,11 @@ const App: React.FC = () => {
 
       <OnboardingModal isOpen={isOnboardingOpen} onComplete={handleOnboardingComplete} />
       
-      <LockModal isOpen={!isOnboardingOpen && isLocked} onUnlock={() => setIsLocked(false)} />
+      <LockModal 
+        isOpen={isLockModalOpen} 
+        onUnlock={handleUnlock} 
+        onClose={() => setIsLockModalOpen(false)} 
+      />
       
       <button 
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
