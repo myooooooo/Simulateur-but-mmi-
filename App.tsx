@@ -1,9 +1,9 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink } from 'lucide-react';
+import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, Lock } from 'lucide-react';
 
 // --- Fonctions de calcul ---
 
@@ -87,6 +87,44 @@ const TopBar = ({ onGoHome }: { onGoHome: () => void }) => (
     </div>
   </header>
 );
+
+const LockModal = ({ isOpen, onUnlock }: { isOpen: boolean, onUnlock: () => void }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-violet-950/80 backdrop-blur-xl p-4 animate-in fade-in zoom-in duration-300">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden p-8 border border-white/20 text-center relative">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-400 to-fuchsia-400"></div>
+        <div className="w-20 h-20 bg-violet-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+          <Lock className="w-10 h-10 text-violet-600 animate-pulse" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 mb-4 leading-tight">🚀 Déverrouillez le simulateur !</h2>
+        <p className="text-slate-500 font-medium text-sm leading-relaxed mb-8">
+          Ce projet est gratuit et maintenu par une étudiante. Soutenez mon travail en me suivant sur LinkedIn pour débloquer les résultats.
+        </p>
+        <div className="space-y-3">
+          <a 
+            href="https://www.linkedin.com/in/zineb-anssafou" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-3 w-full py-4 bg-[#0077B5] text-white rounded-2xl font-black text-sm shadow-xl shadow-[#0077B5]/20 transition-all hover:scale-105 active:scale-95 group"
+          >
+            <Linkedin className="w-5 h-5" />
+            ME SUIVRE SUR LINKEDIN
+          </a>
+          <button 
+            onClick={onUnlock}
+            className="w-full py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-sm transition-all hover:bg-slate-200 active:scale-95"
+          >
+            C'EST FAIT, ACCÉDER AUX RÉSULTATS
+          </button>
+        </div>
+        <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+           <Sparkles className="w-3 h-3" /> Accès instantané après validation
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const OnboardingModal = ({ isOpen, onComplete }: any) => {
   if (!isOpen) return null;
@@ -214,7 +252,31 @@ const App: React.FC = () => {
   const [activeSemesterId, setActiveSemesterId] = useState<string>('S1');
   const [grades, setGrades] = useState<GradeMap>({});
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
+  const [isLocked, setIsLocked] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Charger les données depuis le localStorage au démarrage
+  useEffect(() => {
+    const savedData = localStorage.getItem('mmi_sim_data');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.grades) setGrades(parsed.grades);
+        if (parsed.track) setActiveTrackId(parsed.track);
+        if (parsed.sem) setActiveSemesterId(parsed.sem);
+        if (parsed.isLocked === false) setIsLocked(false);
+      } catch (e) {
+        console.error("Erreur chargement localStorage", e);
+      }
+    }
+  }, []);
+
+  // Sauvegarder automatiquement dans le localStorage lors de changements
+  useEffect(() => {
+    const data = { grades, track: activeTrackId, sem: activeSemesterId, isLocked };
+    localStorage.setItem('mmi_sim_data', JSON.stringify(data));
+  }, [grades, activeTrackId, activeSemesterId, isLocked]);
 
   const activeTrack = useMemo(() => TRACKS.find(t => t.id === activeTrackId) || TRACKS[0], [activeTrackId]);
   
@@ -239,6 +301,43 @@ const App: React.FC = () => {
       if (isNaN(num)) return prev;
       return {...prev, [moduleId]: Math.min(20, Math.max(0, num))};
     });
+  };
+
+  const handleOnboardingComplete = (t: string, s: string) => {
+    setActiveTrackId(t);
+    setActiveSemesterId(s);
+    setIsOnboardingOpen(false);
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data = JSON.parse(content);
+        
+        // Validation basique des données
+        if (!data.grades || typeof data.grades !== 'object') {
+          throw new Error("Le fichier JSON ne contient pas de données de notes valides.");
+        }
+
+        // Mise à jour de l'état
+        setGrades(data.grades);
+        if (data.track) setActiveTrackId(data.track);
+        if (data.sem) setActiveSemesterId(data.sem);
+        
+        window.alert("Importation réussie ! Vos notes ont été restaurées.");
+      } catch (err) {
+        console.error("Erreur d'importation", err);
+        window.alert("Erreur : Le fichier est corrompu ou n'est pas au bon format.");
+      }
+    };
+    reader.readAsText(file);
+    // Reset de l'input pour permettre de réimporter le même fichier
+    event.target.value = '';
   };
 
   const radarData = useMemo(() => {
@@ -277,9 +376,16 @@ const App: React.FC = () => {
           </nav>
 
           <div className="p-6 border-t border-slate-800 space-y-4">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              accept=".json" 
+              onChange={handleImport}
+            />
             <div className="grid grid-cols-2 gap-3">
-               <button onClick={() => window.print()} aria-label="Exporter les notes en PDF ou Imprimer" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
-                  <Printer className="w-4 h-4 mb-1" aria-hidden="true" /> EXPORT
+               <button onClick={() => fileInputRef.current?.click()} aria-label="Importer des notes depuis un fichier JSON" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
+                  <Upload className="w-4 h-4 mb-1" aria-hidden="true" /> IMPORTER
                </button>
                <button onClick={() => {
                  const data = JSON.stringify({ grades, track: activeTrackId, sem: activeSemesterId });
@@ -291,6 +397,11 @@ const App: React.FC = () => {
                  a.click();
                }} aria-label="Sauvegarder mes notes sur mon ordinateur" className="flex flex-col items-center justify-center p-3 bg-slate-800/50 hover:bg-slate-800 rounded-2xl text-[10px] font-black text-slate-300 transition-all border border-slate-700 hover:border-slate-600">
                   <Download className="w-4 h-4 mb-1" aria-hidden="true" /> SAUVER
+               </button>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+               <button onClick={() => window.print()} aria-label="Exporter les notes en PDF ou Imprimer" className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl text-xs font-black transition-all border border-slate-700">
+                  <Printer className="w-4 h-4" aria-hidden="true" /> EXPORTER PDF
                </button>
             </div>
             <button onClick={() => { if(confirm('Voulez-vous vraiment effacer toutes vos notes ?')) setGrades({}); }} aria-label="Réinitialiser toutes les notes saisies" className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-950/20 hover:bg-rose-900/40 text-rose-400 rounded-2xl text-xs font-black transition-all border border-rose-900/30">
@@ -345,18 +456,36 @@ const App: React.FC = () => {
                   <CompetenceCard key={comp.id} comp={comp} semester={activeSemester} grades={grades} onGradeChange={handleGradeChange} />
                 ))}
                 
-                <footer className="pt-10 pb-20 border-t border-slate-200 text-center text-slate-400">
-                   <div className="mb-6 max-w-lg mx-auto">
-                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 text-slate-500">À propos</h4>
-                      <p className="text-[11px] leading-relaxed font-medium">
-                        Cet outil d'aide à l'orientation est conçu pour les étudiants en MMI souhaitant simuler leurs résultats aux SAÉ et ressources. Les calculs sont basés sur les maquettes pédagogiques nationales.
-                      </p>
-                   </div>
-                   <p className="text-xs font-black uppercase tracking-[0.4em]">Simulation BUT MMI - Par Zineb A. - 2025</p>
-                   <div className="mt-4 flex justify-center items-center gap-4">
-                      <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold flex items-center gap-1 hover:text-violet-600 transition-colors"><ExternalLink className="w-3 h-3" aria-hidden="true" /> Powered by Gemini</a>
-                      <span className="text-[10px] font-bold" aria-hidden="true">•</span>
-                      <span className="text-[10px] font-bold">Vérification Google OK</span>
+                <footer className="mt-16 overflow-hidden rounded-3xl border border-slate-100 shadow-sm print:hidden">
+                   <div className="bg-slate-50/80 backdrop-blur-sm p-8 text-center">
+                      <div className="mb-8 max-w-lg mx-auto">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-3 text-slate-500">À propos</h4>
+                        <p className="text-[11px] leading-relaxed font-medium text-slate-400">
+                          Cet outil d'aide à l'orientation est conçu pour les étudiants en MMI souhaitant simuler leurs résultats aux SAÉ et ressources. Les calculs sont basés sur les maquettes pédagogiques nationales.
+                        </p>
+                      </div>
+                      
+                      <div className="py-6 border-t border-slate-200/60 flex flex-col items-center gap-4">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Crédits</h4>
+                        <p className="text-sm font-bold text-slate-600">
+                          Développé par <span className="text-violet-600">Zineb A.</span> — Étudiante en MMI
+                        </p>
+                        
+                        <a 
+                          href="https://www.linkedin.com/in/zineb-anssafou" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="mt-2 flex items-center gap-3 px-6 py-2.5 bg-[#0077B5] text-white rounded-xl font-bold text-xs shadow-lg shadow-[#0077B5]/20 transition-all hover:scale-105 active:scale-95 group"
+                        >
+                          <Linkedin className="w-4 h-4 group-hover:animate-pulse" />
+                          LinkedIn
+                        </a>
+                      </div>
+                      
+                      <div className="mt-8 pt-6 border-t border-slate-200/40 flex justify-center items-center gap-6">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-300">© 2025 MMI SIMULATEUR</p>
+                        <a href="https://ai.google.dev" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-slate-300 flex items-center gap-1 hover:text-violet-600 transition-colors"><ExternalLink className="w-3 h-3" /> Powered by Gemini</a>
+                      </div>
                    </div>
                 </footer>
               </div>
@@ -408,7 +537,9 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      <OnboardingModal isOpen={isOnboardingOpen} onComplete={(t: string, s: string) => { setActiveTrackId(t); setActiveSemesterId(s); setIsOnboardingOpen(false); }} />
+      <OnboardingModal isOpen={isOnboardingOpen} onComplete={handleOnboardingComplete} />
+      
+      <LockModal isOpen={!isOnboardingOpen && isLocked} onUnlock={() => setIsLocked(false)} />
       
       <button 
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
