@@ -63,97 +63,94 @@ const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap
   return totalEcts === 0 ? 0 : parseFloat((totalEctsPoints / totalEcts).toFixed(2));
 };
 
-const calculateTargetGrade = (moduleId: string, comp: Competence, semester: SemesterData, grades: GradeMap) => {
-  // 1. Get all modules for this competence
-  const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE && m.weightings.some(w => w.competenceId === comp.id));
-  const saes = semester.modules.filter(m => m.type === ModuleType.SAE && m.weightings.some(w => w.competenceId === comp.id));
-  const allModules = [...resources, ...saes];
+const calculateUniformTargetGrade = (comp: Competence, semester: SemesterData, grades: GradeMap) => {
+  const { resourceCoefficient: rc, saeCoefficient: sc, id: compId } = comp;
+  const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE && m.weightings.some(w => w.competenceId === compId));
+  const saes = semester.modules.filter(m => m.type === ModuleType.SAE && m.weightings.some(w => w.competenceId === compId));
 
-  // 2. Identify the target module and its coefficient
-  const targetModule = allModules.find(m => m.id === moduleId);
-  if (!targetModule) return null;
-  const targetWeighting = targetModule.weightings.find(w => w.competenceId === comp.id);
-  if (!targetWeighting) return null;
-
-  // 3. Calculate Logic
-  // Formula: (Sum(Existing * Coeff) + Target * TargetCoeff) / TotalCoeff = 10
-  // Note: Since Resource and SAE averages are combined with coefficients (resourceCoefficient, saeCoefficient), it's slightly more complex.
-  // CompAvg = (ResAvg * ResCoeff + SaeAvg * SaeCoeff) / (ResCoeff + SaeCoeff)
-
-  // Let's simplify: We need the weighted sum of resources and SAEs to reach a certain value.
-  // TargetCompAvg = 10.
-  // TargetWeightedSum (Res*Rc + Sae*Sc) = 10 * (Rc + Sc).
-
-  // Let's decompose: 
-  // ResAvg = (Sum(Res_i * Coeff_i) + (isRes ? Target * TargetCoeff : 0)) / TotalResCoeff
-  // SaeAvg = (Sum(Sae_i * Coeff_i) + (isSae ? Target * TargetCoeff : 0)) / TotalSaeCoeff
-
-  const isRes = targetModule.type === ModuleType.RESOURCE;
-
-  // Calculate existing weighted sums (excluding the target module)
-  let currentResScore = 0;
+  // 1. Calculate weighted sums of EXISTING grades and sums of coefficients for EMPTY grades
+  let sumResFilled = 0;
   let totalResCoeff = 0;
+  let sumResEmptyCoeff = 0;
+
   resources.forEach(m => {
-    const w = m.weightings.find(w => w.competenceId === comp.id)!;
+    const w = m.weightings.find(w => w.competenceId === compId)!;
     totalResCoeff += w.coefficient;
-    if (m.id !== moduleId && grades[m.id] !== undefined) {
-      currentResScore += grades[m.id] * w.coefficient;
+    if (grades[m.id] !== undefined) {
+      sumResFilled += grades[m.id] * w.coefficient;
+    } else {
+      sumResEmptyCoeff += w.coefficient;
     }
   });
 
-  let currentSaeScore = 0;
+  let sumSaeFilled = 0;
   let totalSaeCoeff = 0;
+  let sumSaeEmptyCoeff = 0;
+
   saes.forEach(m => {
-    const w = m.weightings.find(w => w.competenceId === comp.id)!;
+    const w = m.weightings.find(w => w.competenceId === compId)!;
     totalSaeCoeff += w.coefficient;
-    if (m.id !== moduleId && grades[m.id] !== undefined) {
-      currentSaeScore += grades[m.id] * w.coefficient;
+    if (grades[m.id] !== undefined) {
+      sumSaeFilled += grades[m.id] * w.coefficient;
+    } else {
+      sumSaeEmptyCoeff += w.coefficient;
     }
   });
 
-  // We want: ( (ResAvg * Rc) + (SaeAvg * Sc) ) / (Rc + Sc) = 10
-  // (ResAvg * Rc) + (SaeAvg * Sc) = 10 * (Rc + Sc)
+  // 2. Identify active parts (denom in average calculation)
+  // calculateCompetenceAverage logic: if totalResCoeff > 0, we use rc. Same for sc.
+  const activeRc = totalResCoeff > 0 ? rc : 0;
+  const activeSc = totalSaeCoeff > 0 ? sc : 0;
+  const totalCoeff = activeRc + activeSc;
 
-  // ResAvg = (currentResScore + (isRes ? T*w : 0)) / totalResCoeff
-  // SaeAvg = (currentSaeScore + (isSae ? T*w : 0)) / totalSaeCoeff
+  if (totalCoeff === 0) return null; // Should not happen
 
-  // Let GlobalTarget = 10 * (comp.resourceCoefficient + comp.saeCoefficient)
-  // (currentResScore + (isRes? T*w : 0)) * comp.resourceCoefficient / totalResCoeff  + ... = GlobalTarget
+  // 3. Equation
+  // Target = 10
+  // (AvgRes * activeRc + AvgSae * activeSc) / totalCoeff = 10
+  // AvgRes * activeRc + AvgSae * activeSc = 10 * totalCoeff
+  //
+  // AvgRes = (sumResFilled + X * sumResEmptyCoeff) / totalResCoeff
+  // AvgSae = (sumSaeFilled + X * sumSaeEmptyCoeff) / totalSaeCoeff
 
-  const rc = comp.resourceCoefficient;
-  const sc = comp.saeCoefficient;
-  const targetCoeff = targetWeighting.coefficient;
-  const GlobalTarget = 10 * (rc + sc);
+  // Substitute:
+  // [ (sumResFilled/totalResCoeff)*activeRc + (X * sumResEmptyCoeff/totalResCoeff)*activeRc ] + ... = TargetScore
 
-  // Equation: 
-  // ( (currentResScore + (isRes ? T*targetCoeff : 0)) / totalResCoeff ) * rc + 
-  // ( (currentSaeScore + (isSae ? T*targetCoeff : 0)) / totalSaeCoeff ) * sc 
-  // = GlobalTarget
+  const TargetScore = 10 * totalCoeff;
 
-  // Solve for T.
+  let fixedPart = 0;
+  let variableFactor = 0;
 
-  let T = 0;
-  const termResFixed = (currentResScore / totalResCoeff) * rc;
-  const termSaeFixed = (currentSaeScore / totalSaeCoeff) * sc;
-
-  if (isRes) {
-    if (totalResCoeff === 0) return null;
-    // (currentResScore + T*targetCoeff)/totalResCoeff * rc + termSaeFixed = GlobalTarget
-    // (currentResScore * rc / totalResCoeff) + (T * targetCoeff * rc / totalResCoeff) + termSaeFixed = GlobalTarget
-    // T * (targetCoeff * rc / totalResCoeff) = GlobalTarget - termSaeFixed - (currentResScore * rc / totalResCoeff)
-
-    const factor = (targetCoeff * rc) / totalResCoeff;
-    const remaining = GlobalTarget - termSaeFixed - termResFixed; // termResFixed here is accurate? No, termResFixed uses currentResScore which doesn't include T. Correct.
-    T = remaining / factor;
-  } else {
-    if (totalSaeCoeff === 0) return null;
-    // termResFixed + (currentSaeScore + T*targetCoeff)/totalSaeCoeff * sc = GlobalTarget
-    const factor = (targetCoeff * sc) / totalSaeCoeff;
-    const remaining = GlobalTarget - termResFixed - termSaeFixed;
-    T = remaining / factor;
+  if (activeRc > 0) {
+    fixedPart += (sumResFilled / totalResCoeff) * activeRc;
+    variableFactor += (sumResEmptyCoeff / totalResCoeff) * activeRc;
   }
 
-  return Math.ceil(T * 4) / 4; // Round to nearest 0.25 upper
+  if (activeSc > 0) {
+    fixedPart += (sumSaeFilled / totalSaeCoeff) * activeSc;
+    variableFactor += (sumSaeEmptyCoeff / totalSaeCoeff) * activeSc;
+  }
+
+  // If variableFactor is 0 (no empty fields), we can't solve for X.
+  // It means the grade is determined.
+  if (variableFactor === 0) {
+    // If we are essentially already above 10 ?
+    // Check if fixedPart >= TargetScore.
+    // But returning null makes sense as "No target needed / Already determined".
+    // Alternatively return <0 if validated?
+    return fixedPart >= TargetScore ? -1 : 999;
+  }
+
+  // fixedPart + X * variableFactor = TargetScore
+  // X = (TargetScore - fixedPart) / variableFactor
+  let X = (TargetScore - fixedPart) / variableFactor;
+
+  // Round to nearest 0.25 upper to be safe ? Or exact ? 
+  // User asked for "NoteCible". "12.5".
+  // ceil to 0.01 or 0.25 is safer.
+  X = Math.ceil(X * 4) / 4;
+
+  return X;
 };
 
 // --- Composants UI ---
@@ -249,6 +246,9 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
   const isEliminatory = average < 8 && Object.keys(grades).length > 0;
   const hasNotes = Object.keys(grades).some(id => [...resources, ...saes].some(m => m.id === id));
 
+  // Calculate Uniform Target for this competence (X for all empty fields)
+  const uniformTarget = calculateUniformTargetGrade(comp, semester, grades);
+
   return (
     <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden mb-6 transition-all duration-300 ${isEliminatory && hasNotes ? 'border-rose-300 ring-4 ring-rose-50' : 'border-slate-200 hover:border-violet-300 hover:shadow-md'}`}>
       <div className="px-6 py-5 flex justify-between items-center bg-white relative border-b border-slate-100">
@@ -275,7 +275,6 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
           </h4>
           <div className="space-y-3">
             {resources.map((mod: any) => {
-              const target = grades[mod.id] === undefined ? calculateTargetGrade(mod.id, comp, semester, grades) : null;
               return (
                 <div key={mod.id} className="flex flex-col gap-1 group">
                   <div className="flex items-center justify-between">
@@ -288,9 +287,9 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                       onChange={(e) => onGradeChange(mod.id, e.target.value)}
                       className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
                   </div>
-                  {target !== null && (
-                    <div className={`text-[10px] font-bold text-right ${target > 20 ? 'text-rose-500' : target < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
-                      {target > 20 ? 'Validation impossible' : target < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{target}</span></span>)}
+                  {grades[mod.id] === undefined && uniformTarget !== null && (
+                    <div className={`text-[10px] font-bold text-right ${uniformTarget > 20 ? 'text-rose-500' : uniformTarget < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                      {uniformTarget > 20 ? 'Validation impossible' : uniformTarget < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{uniformTarget}</span></span>)}
                     </div>
                   )}
                 </div>
@@ -304,7 +303,6 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
           </h4>
           <div className="space-y-3">
             {saes.map((mod: any) => {
-              const target = grades[mod.id] === undefined ? calculateTargetGrade(mod.id, comp, semester, grades) : null;
               return (
                 <div key={mod.id} className="flex flex-col gap-1 group">
                   <div className="flex items-center justify-between">
@@ -317,9 +315,9 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                       onChange={(e) => onGradeChange(mod.id, e.target.value)}
                       className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
                   </div>
-                  {target !== null && (
-                    <div className={`text-[10px] font-bold text-right ${target > 20 ? 'text-rose-500' : target < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
-                      {target > 20 ? 'Validation impossible' : target < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{target}</span></span>)}
+                  {grades[mod.id] === undefined && uniformTarget !== null && (
+                    <div className={`text-[10px] font-bold text-right ${uniformTarget > 20 ? 'text-rose-500' : uniformTarget < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                      {uniformTarget > 20 ? 'Validation impossible' : uniformTarget < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{uniformTarget}</span></span>)}
                     </div>
                   )}
                 </div>
@@ -419,89 +417,38 @@ const App: React.FC = () => {
   };
 
   const handleSimulateSuccess = () => {
-    if (!confirm("Remplir toutes les notes vides pour atteindre 10/20 de moyenne générale ?")) return;
-
-    // We need to find X such that GlobalAvg = 10.
-    // GlobalAvg = Sum( CompAvg_i * ECTS_i ) / TotalECTS = 10 -> Sum(CompAvg_i * ECTS_i) = 10 * TotalECTS
+    if (!confirm("Remplir les notes vides pour atteindre 10/20 par Compétence (UE) ?")) return;
 
     const semester = activeSemester;
-    let totalECTS = 0;
-
-    // Preparation: calculate constant parts and empty parts for each competence
-    let sumConstantEcts = 0; // Sum of (ConstantPart_i * ECTS_i)
-    let sumEmptyEcts = 0; // Sum of (EmptyPart_i * ECTS_i)
+    const newGrades = { ...grades };
+    let impossibleCount = 0;
 
     semester.competencies.forEach(comp => {
-      totalECTS += comp.ects;
-      const { resourceCoefficient: rc, saeCoefficient: sc, id: compId } = comp;
+      // Use the uniform calculator
+      let X = calculateUniformTargetGrade(comp, semester, newGrades);
 
-      const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE && m.weightings.some((w: any) => w.competenceId === compId));
-      const saes = semester.modules.filter(m => m.type === ModuleType.SAE && m.weightings.some((w: any) => w.competenceId === compId));
+      if (X === null || X < 0) return; // Logic handles "validated" (X<0)
 
-      // Calculate Resource contribution
-      let totalResCoeff = 0;
-      let currentResScore = 0;
-      let emptyResCoeff = 0;
-
-      resources.forEach(m => {
-        const w = m.weightings.find((w: any) => w.competenceId === compId)!;
-        totalResCoeff += w.coefficient;
-        if (grades[m.id] !== undefined) currentResScore += grades[m.id] * w.coefficient;
-        else emptyResCoeff += w.coefficient;
-      });
-
-      // Calculate SAE contribution
-      let totalSaeCoeff = 0;
-      let currentSaeScore = 0;
-      let emptySaeCoeff = 0;
-
-      saes.forEach(m => {
-        const w = m.weightings.find((w: any) => w.competenceId === compId)!;
-        totalSaeCoeff += w.coefficient;
-        if (grades[m.id] !== undefined) currentSaeScore += grades[m.id] * w.coefficient;
-        else emptySaeCoeff += w.coefficient;
-      });
-
-      // CompAvg = ( (ResScore / TotalRes) * rc + (SaeScore / TotalSae) * sc ) / (rc + sc)
-      // Decomposed: 
-      // = [ ( (CurrRes + X*EmptyRes)/TotalRes ) * rc + ( (CurrSae + X*EmptySae)/TotalSae ) * sc ] / (rc+sc)
-      // = [ (CurrRes/TotalRes * rc + CurrSae/TotalSae * sc) + X * (EmptyRes/TotalRes * rc + EmptySae/TotalSae * sc) ] / (rc+sc)
-
-      const denom = rc + sc;
-      if (denom === 0) return;
-
-      const constantTermRes = totalResCoeff > 0 ? (currentResScore / totalResCoeff) * rc : 0;
-      const constantTermSae = totalSaeCoeff > 0 ? (currentSaeScore / totalSaeCoeff) * sc : 0;
-      const constantPool = (constantTermRes + constantTermSae) / denom;
-
-      const emptyTermRes = totalResCoeff > 0 ? (emptyResCoeff / totalResCoeff) * rc : 0;
-      const emptyTermSae = totalSaeCoeff > 0 ? (emptySaeCoeff / totalSaeCoeff) * sc : 0;
-      const emptyPool = (emptyTermRes + emptyTermSae) / denom;
-
-      sumConstantEcts += constantPool * comp.ects;
-      sumEmptyEcts += emptyPool * comp.ects;
-    });
-
-    // Equation: sumConstantEcts + X * sumEmptyEcts = 10 * totalECTS
-    // X = (10 * totalECTS - sumConstantEcts) / sumEmptyEcts
-
-    if (sumEmptyEcts === 0) {
-      alert("Aucune note vide à remplir ou impossible de calculer.");
-      return;
-    }
-
-    let X = (10 * totalECTS - sumConstantEcts) / sumEmptyEcts;
-    X = Math.max(0, Math.min(20, X)); // Clamp between 0 and 20
-    X = Math.ceil(X * 4) / 4; // Round to 0.25
-
-    // Apply X to all empty modules
-    const newGrades = { ...grades };
-    semester.modules.forEach(m => {
-      if (newGrades[m.id] === undefined) {
-        newGrades[m.id] = X;
+      if (X > 20) {
+        impossibleCount++;
+        X = 20;
       }
+
+      // Ensure bounds
+      X = Math.max(0, X);
+
+      // Apply to all empty modules of this comp
+      semester.modules.forEach(m => {
+        if (newGrades[m.id] === undefined && m.weightings.some((w: any) => w.competenceId === comp.id)) {
+          newGrades[m.id] = X as number;
+        }
+      });
     });
+
     setGrades(newGrades);
+    if (impossibleCount > 0) {
+      setTimeout(() => alert(`Attention : Pour ${impossibleCount} compétence(s), même avec 20/20 aux modules manquants, la moyenne de 10 n'est pas atteinte.`), 100);
+    }
   };
 
   const radarData = useMemo(() => {
