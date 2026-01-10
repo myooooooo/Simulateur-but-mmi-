@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TRACKS } from './constants';
 import { GradeMap, ModuleType, SemesterData, Competence } from './types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, ArrowRight, Heart, Eye } from 'lucide-react';
+import { RotateCcw, Award, AlertCircle, ChevronRight, Calculator, Menu, X, Download, Upload, GraduationCap, Terminal, Palette, Presentation, User, Home, Sparkles, AlertTriangle, Printer, ExternalLink, Linkedin, ArrowRight, Heart, Eye, Target } from 'lucide-react';
 
 // --- Fonctions de calcul ---
 
@@ -61,6 +61,99 @@ const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap
   });
 
   return totalEcts === 0 ? 0 : parseFloat((totalEctsPoints / totalEcts).toFixed(2));
+};
+
+const calculateTargetGrade = (moduleId: string, comp: Competence, semester: SemesterData, grades: GradeMap) => {
+  // 1. Get all modules for this competence
+  const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE && m.weightings.some(w => w.competenceId === comp.id));
+  const saes = semester.modules.filter(m => m.type === ModuleType.SAE && m.weightings.some(w => w.competenceId === comp.id));
+  const allModules = [...resources, ...saes];
+
+  // 2. Identify the target module and its coefficient
+  const targetModule = allModules.find(m => m.id === moduleId);
+  if (!targetModule) return null;
+  const targetWeighting = targetModule.weightings.find(w => w.competenceId === comp.id);
+  if (!targetWeighting) return null;
+
+  // 3. Calculate Logic
+  // Formula: (Sum(Existing * Coeff) + Target * TargetCoeff) / TotalCoeff = 10
+  // Note: Since Resource and SAE averages are combined with coefficients (resourceCoefficient, saeCoefficient), it's slightly more complex.
+  // CompAvg = (ResAvg * ResCoeff + SaeAvg * SaeCoeff) / (ResCoeff + SaeCoeff)
+
+  // Let's simplify: We need the weighted sum of resources and SAEs to reach a certain value.
+  // TargetCompAvg = 10.
+  // TargetWeightedSum (Res*Rc + Sae*Sc) = 10 * (Rc + Sc).
+
+  // Let's decompose: 
+  // ResAvg = (Sum(Res_i * Coeff_i) + (isRes ? Target * TargetCoeff : 0)) / TotalResCoeff
+  // SaeAvg = (Sum(Sae_i * Coeff_i) + (isSae ? Target * TargetCoeff : 0)) / TotalSaeCoeff
+
+  const isRes = targetModule.type === ModuleType.RESOURCE;
+
+  // Calculate existing weighted sums (excluding the target module)
+  let currentResScore = 0;
+  let totalResCoeff = 0;
+  resources.forEach(m => {
+    const w = m.weightings.find(w => w.competenceId === comp.id)!;
+    totalResCoeff += w.coefficient;
+    if (m.id !== moduleId && grades[m.id] !== undefined) {
+      currentResScore += grades[m.id] * w.coefficient;
+    }
+  });
+
+  let currentSaeScore = 0;
+  let totalSaeCoeff = 0;
+  saes.forEach(m => {
+    const w = m.weightings.find(w => w.competenceId === comp.id)!;
+    totalSaeCoeff += w.coefficient;
+    if (m.id !== moduleId && grades[m.id] !== undefined) {
+      currentSaeScore += grades[m.id] * w.coefficient;
+    }
+  });
+
+  // We want: ( (ResAvg * Rc) + (SaeAvg * Sc) ) / (Rc + Sc) = 10
+  // (ResAvg * Rc) + (SaeAvg * Sc) = 10 * (Rc + Sc)
+
+  // ResAvg = (currentResScore + (isRes ? T*w : 0)) / totalResCoeff
+  // SaeAvg = (currentSaeScore + (isSae ? T*w : 0)) / totalSaeCoeff
+
+  // Let GlobalTarget = 10 * (comp.resourceCoefficient + comp.saeCoefficient)
+  // (currentResScore + (isRes? T*w : 0)) * comp.resourceCoefficient / totalResCoeff  + ... = GlobalTarget
+
+  const rc = comp.resourceCoefficient;
+  const sc = comp.saeCoefficient;
+  const targetCoeff = targetWeighting.coefficient;
+  const GlobalTarget = 10 * (rc + sc);
+
+  // Equation: 
+  // ( (currentResScore + (isRes ? T*targetCoeff : 0)) / totalResCoeff ) * rc + 
+  // ( (currentSaeScore + (isSae ? T*targetCoeff : 0)) / totalSaeCoeff ) * sc 
+  // = GlobalTarget
+
+  // Solve for T.
+
+  let T = 0;
+  const termResFixed = (currentResScore / totalResCoeff) * rc;
+  const termSaeFixed = (currentSaeScore / totalSaeCoeff) * sc;
+
+  if (isRes) {
+    if (totalResCoeff === 0) return null;
+    // (currentResScore + T*targetCoeff)/totalResCoeff * rc + termSaeFixed = GlobalTarget
+    // (currentResScore * rc / totalResCoeff) + (T * targetCoeff * rc / totalResCoeff) + termSaeFixed = GlobalTarget
+    // T * (targetCoeff * rc / totalResCoeff) = GlobalTarget - termSaeFixed - (currentResScore * rc / totalResCoeff)
+
+    const factor = (targetCoeff * rc) / totalResCoeff;
+    const remaining = GlobalTarget - termSaeFixed - termResFixed; // termResFixed here is accurate? No, termResFixed uses currentResScore which doesn't include T. Correct.
+    T = remaining / factor;
+  } else {
+    if (totalSaeCoeff === 0) return null;
+    // termResFixed + (currentSaeScore + T*targetCoeff)/totalSaeCoeff * sc = GlobalTarget
+    const factor = (targetCoeff * sc) / totalSaeCoeff;
+    const remaining = GlobalTarget - termResFixed - termSaeFixed;
+    T = remaining / factor;
+  }
+
+  return Math.ceil(T * 4) / 4; // Round to nearest 0.25 upper
 };
 
 // --- Composants UI ---
@@ -181,18 +274,28 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
             Ressources
           </h4>
           <div className="space-y-3">
-            {resources.map((mod: any) => (
-              <div key={mod.id} className="flex items-center justify-between group">
-                <label htmlFor={`grade-${mod.id}`} className="text-sm font-semibold text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors cursor-pointer">{mod.name}</label>
-                <input
-                  id={`grade-${mod.id}`}
-                  type="number"
-                  min="0" max="20" step="0.25" placeholder="-"
-                  value={grades[mod.id] ?? ''}
-                  onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                  className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
-              </div>
-            ))}
+            {resources.map((mod: any) => {
+              const target = grades[mod.id] === undefined ? calculateTargetGrade(mod.id, comp, semester, grades) : null;
+              return (
+                <div key={mod.id} className="flex flex-col gap-1 group">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor={`grade-${mod.id}`} className="text-sm font-semibold text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors cursor-pointer">{mod.name}</label>
+                    <input
+                      id={`grade-${mod.id}`}
+                      type="number"
+                      min="0" max="20" step="0.25" placeholder="-"
+                      value={grades[mod.id] ?? ''}
+                      onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                      className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                  </div>
+                  {target !== null && (
+                    <div className={`text-[10px] font-bold text-right ${target > 20 ? 'text-rose-500' : target < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                      {target > 20 ? 'Validation impossible' : target < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{target}</span></span>)}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
         <div>
@@ -200,18 +303,28 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
             SAÉ (Situations d'Apprentissage)
           </h4>
           <div className="space-y-3">
-            {saes.map((mod: any) => (
-              <div key={mod.id} className="flex items-center justify-between group">
-                <label htmlFor={`grade-${mod.id}`} className="text-sm font-semibold text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors cursor-pointer">{mod.name}</label>
-                <input
-                  id={`grade-${mod.id}`}
-                  type="number"
-                  min="0" max="20" step="0.25" placeholder="-"
-                  value={grades[mod.id] ?? ''}
-                  onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                  className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
-              </div>
-            ))}
+            {saes.map((mod: any) => {
+              const target = grades[mod.id] === undefined ? calculateTargetGrade(mod.id, comp, semester, grades) : null;
+              return (
+                <div key={mod.id} className="flex flex-col gap-1 group">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor={`grade-${mod.id}`} className="text-sm font-semibold text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors cursor-pointer">{mod.name}</label>
+                    <input
+                      id={`grade-${mod.id}`}
+                      type="number"
+                      min="0" max="20" step="0.25" placeholder="-"
+                      value={grades[mod.id] ?? ''}
+                      onChange={(e) => onGradeChange(mod.id, e.target.value)}
+                      className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                  </div>
+                  {target !== null && (
+                    <div className={`text-[10px] font-bold text-right ${target > 20 ? 'text-rose-500' : target < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                      {target > 20 ? 'Validation impossible' : target < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{target}</span></span>)}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -305,10 +418,97 @@ const App: React.FC = () => {
     setIsOnboardingOpen(false);
   };
 
+  const handleSimulateSuccess = () => {
+    if (!confirm("Remplir toutes les notes vides pour atteindre 10/20 de moyenne générale ?")) return;
+
+    // We need to find X such that GlobalAvg = 10.
+    // GlobalAvg = Sum( CompAvg_i * ECTS_i ) / TotalECTS = 10 -> Sum(CompAvg_i * ECTS_i) = 10 * TotalECTS
+
+    const semester = activeSemester;
+    let totalECTS = 0;
+
+    // Preparation: calculate constant parts and empty parts for each competence
+    let sumConstantEcts = 0; // Sum of (ConstantPart_i * ECTS_i)
+    let sumEmptyEcts = 0; // Sum of (EmptyPart_i * ECTS_i)
+
+    semester.competencies.forEach(comp => {
+      totalECTS += comp.ects;
+      const { resourceCoefficient: rc, saeCoefficient: sc, id: compId } = comp;
+
+      const resources = semester.modules.filter(m => m.type === ModuleType.RESOURCE && m.weightings.some((w: any) => w.competenceId === compId));
+      const saes = semester.modules.filter(m => m.type === ModuleType.SAE && m.weightings.some((w: any) => w.competenceId === compId));
+
+      // Calculate Resource contribution
+      let totalResCoeff = 0;
+      let currentResScore = 0;
+      let emptyResCoeff = 0;
+
+      resources.forEach(m => {
+        const w = m.weightings.find((w: any) => w.competenceId === compId)!;
+        totalResCoeff += w.coefficient;
+        if (grades[m.id] !== undefined) currentResScore += grades[m.id] * w.coefficient;
+        else emptyResCoeff += w.coefficient;
+      });
+
+      // Calculate SAE contribution
+      let totalSaeCoeff = 0;
+      let currentSaeScore = 0;
+      let emptySaeCoeff = 0;
+
+      saes.forEach(m => {
+        const w = m.weightings.find((w: any) => w.competenceId === compId)!;
+        totalSaeCoeff += w.coefficient;
+        if (grades[m.id] !== undefined) currentSaeScore += grades[m.id] * w.coefficient;
+        else emptySaeCoeff += w.coefficient;
+      });
+
+      // CompAvg = ( (ResScore / TotalRes) * rc + (SaeScore / TotalSae) * sc ) / (rc + sc)
+      // Decomposed: 
+      // = [ ( (CurrRes + X*EmptyRes)/TotalRes ) * rc + ( (CurrSae + X*EmptySae)/TotalSae ) * sc ] / (rc+sc)
+      // = [ (CurrRes/TotalRes * rc + CurrSae/TotalSae * sc) + X * (EmptyRes/TotalRes * rc + EmptySae/TotalSae * sc) ] / (rc+sc)
+
+      const denom = rc + sc;
+      if (denom === 0) return;
+
+      const constantTermRes = totalResCoeff > 0 ? (currentResScore / totalResCoeff) * rc : 0;
+      const constantTermSae = totalSaeCoeff > 0 ? (currentSaeScore / totalSaeCoeff) * sc : 0;
+      const constantPool = (constantTermRes + constantTermSae) / denom;
+
+      const emptyTermRes = totalResCoeff > 0 ? (emptyResCoeff / totalResCoeff) * rc : 0;
+      const emptyTermSae = totalSaeCoeff > 0 ? (emptySaeCoeff / totalSaeCoeff) * sc : 0;
+      const emptyPool = (emptyTermRes + emptyTermSae) / denom;
+
+      sumConstantEcts += constantPool * comp.ects;
+      sumEmptyEcts += emptyPool * comp.ects;
+    });
+
+    // Equation: sumConstantEcts + X * sumEmptyEcts = 10 * totalECTS
+    // X = (10 * totalECTS - sumConstantEcts) / sumEmptyEcts
+
+    if (sumEmptyEcts === 0) {
+      alert("Aucune note vide à remplir ou impossible de calculer.");
+      return;
+    }
+
+    let X = (10 * totalECTS - sumConstantEcts) / sumEmptyEcts;
+    X = Math.max(0, Math.min(20, X)); // Clamp between 0 and 20
+    X = Math.ceil(X * 4) / 4; // Round to 0.25
+
+    // Apply X to all empty modules
+    const newGrades = { ...grades };
+    semester.modules.forEach(m => {
+      if (newGrades[m.id] === undefined) {
+        newGrades[m.id] = X;
+      }
+    });
+    setGrades(newGrades);
+  };
+
   const radarData = useMemo(() => {
     return activeSemester.competencies.map(comp => ({
       subject: comp.id,
       A: calculateCompetenceAverage(comp, activeSemester, grades),
+      target: 10,
       fullMark: 20
     }));
   }, [activeSemester, grades]);
@@ -354,7 +554,7 @@ const App: React.FC = () => {
               }} className="flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-600 border border-slate-200 transition-colors duration-200 shadow-sm"><Download className="w-3 h-3" /> Sauver</button>
             </div>
             <button onClick={() => { if (confirm('Attention : Cette action effacera toutes les notes saisies pour ce semestre. Continuer ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-rose-50 text-rose-500 rounded-lg text-xs font-bold transition-all border border-rose-100 hover:border-rose-200 shadow-sm"><RotateCcw className="w-3 h-3" /> Réinitialiser le semestre</button>
-            <button onClick={() => { if (confirm('Attention : Cette action effacera toutes les notes saisies pour ce semestre. Continuer ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-rose-50 text-rose-500 rounded-lg text-xs font-bold transition-all border border-rose-100 hover:border-rose-200 shadow-sm"><RotateCcw className="w-3 h-3" /> Réinitialiser le semestre</button>
+            <button onClick={handleSimulateSuccess} className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-violet-200 mt-2"><Target className="w-3 h-3" /> Simuler une réussite</button>
 
             <div className="mt-6 pt-6 border-t border-slate-200/60">
               <div className="bg-white rounded-xl p-3 border border-slate-100 flex items-center justify-between gap-3 shadow-sm">
@@ -473,6 +673,7 @@ const App: React.FC = () => {
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} />
                               <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
+                              <Radar name="Validation" dataKey="target" stroke="#CBD5E1" strokeWidth={2} strokeDasharray="4 4" fill="transparent" />
                               <Radar name="Moyenne" dataKey="A" stroke="#8B5CF6" strokeWidth={3} fill="#8B5CF6" fillOpacity={0.2} />
                               <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px', fontWeight: 'bold' }}
