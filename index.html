@@ -1,45 +1,67 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- Google Search Console - Verification -->
-    <meta name="google-site-verification" content="EUaBtjDBkhN3L33VlU4DWtdAhUlujJTId5sLAQ2j3Ws" />
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Simulateur BUT MMI - Calculez vos moyennes et coefficients</title>
-    
-    <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MMI&background=C4B5FD&color=fff&size=180" />
-    <link rel="manifest" href="/manifest.json" />
 
-    <meta name="description" content="Simulateur de notes pour les étudiants en BUT MMI. Calculez vos moyennes par semestre avec les coefficients officiels. Outil gratuit créé par Zineb A." />
-    <meta name="author" content="Zineb A." />
-    <link rel="canonical" href="https://simulateur-but-mmi.vercel.app/" />
+<head>
+  <meta charset="UTF-8" />
+  <!-- Google Search Console - Verification -->
+  <meta name="google-site-verification" content="EUaBtjDBkhN3L33VlU4DWtdAhUlujJTId5sLAQ2j3Ws" />
 
-    <!-- OpenGraph -->
-    <meta property="og:title" content="Simulateur BUT MMI - Calculez vos moyennes" />
-    <meta property="og:description" content="Simulateur de notes pour les étudiants en BUT MMI. Calculez vos moyennes par semestre avec les coefficients officiels. Outil gratuit créé par Zineb A." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://simulateur-but-mmi.vercel.app/" />
-    <meta property="og:image" content="https://ui-avatars.com/api/?name=MMI+Sim&background=C4B5FD&color=fff&size=512" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>BUT MMI : Simulateur de Moyenne & Coefficients (Réforme 2026)</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MMI&background=C4B5FD&color=fff&size=180" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <meta name="description"
+    content="Simulateur de notes pour les étudiants en BUT MMI. Calculez vos moyennes par semestre avec les coefficients officiels. Outil gratuit créé par Zineb A." />
+  <meta name="author" content="Zineb A." />
+  <link rel="canonical" href="https://simulateur-but-mmi.vercel.app/" />
+
+  <!-- OpenGraph -->
+  <meta property="og:title" content="Simulateur BUT MMI - Calculez vos moyennes" />
+  <meta property="og:description"
+    content="Simulateur de notes pour les étudiants en BUT MMI. Calculez vos moyennes par semestre avec les coefficients officiels. Outil gratuit créé par Zineb A." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://simulateur-but-mmi.vercel.app/" />
+  <meta property="og:image" content="https://ui-avatars.com/api/?name=MMI+Sim&background=C4B5FD&color=fff&size=512" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      overscroll-behavior-y: none;
+      background-color: #F5F3FF;
+    }
+
+    @media print {
+
+      .no-print,
+      #sidebar,
+      button,
+      .mobile-fab {
+        display: none !important;
+      }
+
       body {
-        font-family: 'Inter', sans-serif;
-        overscroll-behavior-y: none;
-        background-color: #F5F3FF;
+        background: white;
       }
-      @media print {
-        .no-print, #sidebar, button, .mobile-fab { display: none !important; }
-        body { background: white; }
-      }
-      ::-webkit-scrollbar { width: 6px; }
-      ::-webkit-scrollbar-thumb { background: #DDD6FE; border-radius: 10px; }
-    </style>
-    <script type="importmap">
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #DDD6FE;
+      border-radius: 10px;
+    }
+  </style>
+  <script type="importmap">
     {
       "imports": {
         "react": "https://aistudiocdn.com/react@^19.2.0",
@@ -50,7 +72,7 @@
       }
     }
     </script>
-    <script type="application/ld+json">
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
@@ -69,9 +91,11 @@
       }
     }
     </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-  </body>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
+</body>
+
 </html>

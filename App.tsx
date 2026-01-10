@@ -67,11 +67,11 @@ const calculateSemesterGlobalAverage = (semester: SemesterData, grades: GradeMap
 
 const TopBar = ({ onGoHome, progress }: { onGoHome: () => void, progress: number }) => (
   <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm z-30 sticky top-0 print:hidden">
-    <div className="flex items-center gap-4">
-      <button onClick={onGoHome} aria-label="Retour à l'accueil" className="p-2 hover:bg-slate-100 rounded-xl transition-all active:scale-95 text-slate-600">
+    <div className="flex items-center gap-3">
+      <button onClick={onGoHome} aria-label="Retour à l'accueil" className="p-2 hover:bg-slate-100 rounded-xl transition-all active:scale-95 text-slate-600 flex items-center justify-center">
         <Home className="w-6 h-6" />
       </button>
-      <div className="flex flex-col cursor-pointer" onClick={onGoHome}>
+      <div className="flex flex-col cursor-pointer justify-center" onClick={onGoHome}>
         <div className="text-xl font-black tracking-tighter leading-none uppercase text-violet-600">MMI SIM</div>
         <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Simulateur BUT</div>
       </div>
@@ -290,8 +290,9 @@ const App: React.FC = () => {
 
   const handleGradeChange = (moduleId: string, value: string) => {
     setGrades(prev => {
-      if (value === '') { const n = { ...prev }; delete n[moduleId]; return n; }
-      const num = parseFloat(value);
+      const sanitizedValue = value.replace(',', '.');
+      if (sanitizedValue === '') { const n = { ...prev }; delete n[moduleId]; return n; }
+      const num = parseFloat(sanitizedValue);
       return { ...prev, [moduleId]: Math.min(20, Math.max(0, isNaN(num) ? 0 : num)) };
     });
   };
@@ -320,7 +321,7 @@ const App: React.FC = () => {
         {/* SIDEBAR */}
         <aside className={`fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-200 transform transition-transform duration-300 md:static md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col print:hidden`}>
           <div className="p-8 pb-4">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Navigation</div>
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Navigation</div>
             <nav className="space-y-1">
               {filteredSemesters.map(sem => (
                 <button key={sem.id} onClick={() => { setActiveSemesterId(sem.id); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
@@ -346,13 +347,37 @@ const App: React.FC = () => {
             }} />
 
             <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-600 border border-slate-200 transition-all shadow-sm"><Upload className="w-3 h-3" /> Importer</button>
+              <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-600 border border-slate-200 transition-colors duration-200 shadow-sm"><Upload className="w-3 h-3" /> Importer</button>
               <button onClick={() => {
                 const blob = new Blob([JSON.stringify({ grades, track: activeTrackId, sem: activeSemesterId, filter: semesterFilter })], { type: 'application/json' });
                 const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `notes_mmi.json`; a.click();
-              }} className="flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-slate-50 rounded-lg text-xs font-bold text-slate-600 border border-slate-200 transition-all shadow-sm"><Download className="w-3 h-3" /> Sauver</button>
+              }} className="flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-slate-100 rounded-lg text-xs font-bold text-slate-600 border border-slate-200 transition-colors duration-200 shadow-sm"><Download className="w-3 h-3" /> Sauver</button>
             </div>
-            <button onClick={() => { if (confirm('Voulez-vous vraiment effacer toutes les notes ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-rose-50 text-rose-500 rounded-lg text-xs font-bold transition-all border border-rose-100 hover:border-rose-200 shadow-sm"><RotateCcw className="w-3 h-3" /> Réinitialiser le semestre</button>
+            <button onClick={() => { if (confirm('Attention : Cette action effacera toutes les notes saisies pour ce semestre. Continuer ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-rose-50 text-rose-500 rounded-lg text-xs font-bold transition-all border border-rose-100 hover:border-rose-200 shadow-sm"><RotateCcw className="w-3 h-3" /> Réinitialiser le semestre</button>
+            <button onClick={() => { if (confirm('Attention : Cette action effacera toutes les notes saisies pour ce semestre. Continuer ?')) setGrades({}); }} className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-rose-50 text-rose-500 rounded-lg text-xs font-bold transition-all border border-rose-100 hover:border-rose-200 shadow-sm"><RotateCcw className="w-3 h-3" /> Réinitialiser le semestre</button>
+
+            <div className="mt-6 pt-6 border-t border-slate-200/60">
+              <div className="bg-white rounded-xl p-3 border border-slate-100 flex items-center justify-between gap-3 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-violet-50 text-violet-600 rounded-md">
+                    <Heart className="w-3.5 h-3.5 text-violet-500 fill-violet-500" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-slate-700">Soutenez le projet</div>
+                    <div className="text-[9px] text-slate-400 font-semibold">100% Gratuit & Open Source</div>
+                  </div>
+                </div>
+                <a
+                  href="https://www.linkedin.com/in/zineb-anssafou"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                  aria-label="LinkedIn"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
           </div>
         </aside>
 
@@ -398,8 +423,21 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Footer Section */}
-                <footer className="mt-12 border-t border-slate-200 pt-8 text-center print:hidden">
-                  <p className="text-sm text-slate-500 mb-4">Outil non-officiel développé pour aider les étudiants.</p>
+                <footer className="mt-12 border-t border-slate-200 pt-8 text-center print:hidden pb-8">
+                  <p className="text-sm text-slate-500 mb-6">Outil non-officiel développé pour aider les étudiants.</p>
+
+                  <div className="max-w-3xl mx-auto text-left space-y-4">
+                    <h3 className="text-lg font-bold text-slate-800">À propos du Simulateur BUT MMI</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Ce <strong>Simulateur BUT MMI</strong> est un outil pédagogique conçu pour aider les étudiants du <strong>Bachelor Universitaire de Technologie Métiers du Multimédia et de l'Internet</strong> à anticiper leurs résultats. Il intègre les coefficients officiels de la réforme (2024-2026) pour tous les parcours : <em>Création Numérique</em>, <em>Développement Web</em> et <em>Stratégie de Communication</em>.
+                    </p>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      L'algorithme calcule automatiquement votre moyenne générale en pondérant chaque note selon les Coefficients des <strong>Ressources</strong> (cours théoriques) et des <strong>SAÉ</strong> (Situations d'Apprentissage et d'Évaluation). Il identifie également les <strong>Unités d'Enseignement (UE)</strong> où la moyenne est inférieure à 8/20, signalant un risque de non-validation du semestre.
+                    </p>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      Idéal pour préparer son semestre, simuler des scénarios de notes (rattrapages) et gérer son <strong>Portfolio</strong> de compétences. Compatible avec les maquettes pédagogiques nationales.
+                    </p>
+                  </div>
                 </footer>
               </div>
 
@@ -429,8 +467,8 @@ const App: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="h-[300px] w-full">
-                          <ResponsiveContainer width="100%" height={300}>
+                        <div className="h-[350px] w-full">
+                          <ResponsiveContainer width="100%" height="100%">
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} />
@@ -453,8 +491,8 @@ const App: React.FC = () => {
                             <span className="text-lg text-slate-200 ml-1 font-bold">/20</span>
                           </div>
                         </div>
-                        <div className="h-[300px] w-full">
-                          <ResponsiveContainer width="100%" height={300}>
+                        <div className="h-[350px] w-full">
+                          <ResponsiveContainer width="100%" height="100%">
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={activeSemester.competencies.map(c => ({ subject: c.id, A: 0, fullMark: 20 }))}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#CBD5E1', fontSize: 10, fontWeight: 700 }} />
@@ -467,27 +505,33 @@ const App: React.FC = () => {
                     )}
                   </div>
 
-                  {/* SOFT CONVERSION CARD */}
-                  <div className="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between gap-4 group hover:border-violet-200 transition-all shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-violet-50 text-violet-600 rounded-lg">
-                        <Heart className="w-4 h-4 text-violet-500 fill-violet-500" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-700">Soutenez le projet</div>
-                        <div className="text-[10px] text-slate-400 font-semibold">100% Gratuit & Open Source</div>
-                      </div>
-                    </div>
-                    <a
-                      href="https://www.linkedin.com/in/zineb-anssafou"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] font-bold shadow-sm hover:scale-105 active:scale-95 transition-all"
-                    >
-                      <span>Rejoindre la communauté MMI</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </a>
-                  </div>
+                  {/* POINTS FORTS MODULE (Highest Average) */}
+                  {hasDataForCurrentSemester && (
+                    (() => {
+                      const sortedComps = [...activeSemester.competencies].sort((a, b) =>
+                        calculateCompetenceAverage(b, activeSemester, grades) - calculateCompetenceAverage(a, activeSemester, grades)
+                      );
+                      const bestComp = sortedComps[0];
+                      const bestAvg = calculateCompetenceAverage(bestComp, activeSemester, grades);
+
+                      if (bestAvg > 0) return (
+                        <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-6 shadow-lg shadow-violet-200 text-white relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-3 opacity-20">
+                            <Sparkles className="w-16 h-16" />
+                          </div>
+                          <div className="relative z-10">
+                            <h3 className="text-xs font-bold text-violet-200 uppercase tracking-widest mb-1">Point Fort</h3>
+                            <div className="text-2xl font-black mb-1">{bestComp.name}</div>
+                            <div className="text-4xl font-black tracking-tight opacity-90">{bestAvg.toFixed(2)}<span className="text-lg opacity-60 font-semibold">/20</span></div>
+                            <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold">
+                              <Award className="w-3.5 h-3.5" /> Compétence {bestComp.id}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                      return null;
+                    })()
+                  )}
 
                 </div>
               </div>

@@ -126,7 +126,7 @@ const getS3 = (pathId: string, pathName: string): SemesterData => ({
 // --- SEMESTRE 4 CRÉA ---
 const S4_CN: SemesterData = {
   id: 'S4-CN',
-  name: 'Semestre 4 (Créa)',
+  name: 'Semestre 4 (Création Numérique)',
   competencies: [
     { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 8, saeCoefficient: 10 },
     { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 8, saeCoefficient: 12 },
@@ -153,7 +153,7 @@ const S4_CN: SemesterData = {
 // --- SEMESTRE 4 DEV ---
 const S4_DW: SemesterData = {
   id: 'S4-DW',
-  name: 'Semestre 4 (Dev)',
+  name: 'Semestre 4 (Développement Web)',
   competencies: [
     { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 4, saeCoefficient: 6 },
     { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 4, saeCoefficient: 4 },
@@ -180,7 +180,7 @@ const S4_DW: SemesterData = {
 // --- SEMESTRE 4 STRAT ---
 const S4_SC: SemesterData = {
   id: 'S4-SC',
-  name: 'Semestre 4 (Strat)',
+  name: 'Semestre 4 (Stratégie)',
   competencies: [
     { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 6, resourceCoefficient: 5, saeCoefficient: 6 },
     { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 8, resourceCoefficient: 12, saeCoefficient: 12 },
@@ -205,7 +205,7 @@ const S4_SC: SemesterData = {
 
 // --- TROISIÈME ANNÉE (S5 & S6) ---
 const S5_CN: SemesterData = {
-  id: 'S5-CN', name: 'Semestre 5 (Créa)',
+  id: 'S5-CN', name: 'Semestre 5 (Création Numérique)',
   competencies: [
     { id: 'C5.3', name: 'Exprimer', color: COLORS[2], ects: 20, resourceCoefficient: 10, saeCoefficient: 10 },
     { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 4, saeCoefficient: 4 },
@@ -223,7 +223,7 @@ const S5_CN: SemesterData = {
 };
 
 const S6_CN: SemesterData = {
-  id: 'S6-CN', name: 'Semestre 6 (Créa)',
+  id: 'S6-CN', name: 'Semestre 6 (Création Numérique)',
   competencies: [
     { id: 'C6.3', name: 'Exprimer', color: COLORS[2], ects: 20, resourceCoefficient: 2, saeCoefficient: 2 },
     { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 2, saeCoefficient: 2 },
@@ -238,7 +238,7 @@ const S6_CN: SemesterData = {
 
 // S5/S6 DW
 const S5_DW: SemesterData = {
-  id: 'S5-DW', name: 'Semestre 5 (Dev)',
+  id: 'S5-DW', name: 'Semestre 5 (Développement Web)',
   competencies: [
     { id: 'C5.4', name: 'Développer', color: COLORS[3], ects: 20, resourceCoefficient: 10, saeCoefficient: 10 },
     { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 4, saeCoefficient: 4 },
@@ -257,7 +257,7 @@ const S5_DW: SemesterData = {
 };
 
 const S6_DW: SemesterData = {
-  id: 'S6-DW', name: 'Semestre 6 (Dev)',
+  id: 'S6-DW', name: 'Semestre 6 (Développement Web)',
   competencies: [
     { id: 'C6.4', name: 'Développer', color: COLORS[3], ects: 20, resourceCoefficient: 2, saeCoefficient: 2 },
     { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 2, saeCoefficient: 2 },
@@ -272,7 +272,7 @@ const S6_DW: SemesterData = {
 
 // S5/S6 SC
 const S5_SC: SemesterData = {
-  id: 'S5-SC', name: 'Semestre 5 (Strat)',
+  id: 'S5-SC', name: 'Semestre 5 (Stratégie)',
   competencies: [
     { id: 'C5.2', name: 'Concevoir', color: COLORS[1], ects: 20, resourceCoefficient: 11, saeCoefficient: 8 },
     { id: 'C5.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 4, saeCoefficient: 4 },
@@ -290,7 +290,7 @@ const S5_SC: SemesterData = {
 };
 
 const S6_SC: SemesterData = {
-  id: 'S6-SC', name: 'Semestre 6 (Strat)',
+  id: 'S6-SC', name: 'Semestre 6 (Stratégie)',
   competencies: [
     { id: 'C6.2', name: 'Concevoir', color: COLORS[1], ects: 20, resourceCoefficient: 2, saeCoefficient: 2 },
     { id: 'C6.5', name: 'Entreprendre', color: COLORS[4], ects: 10, resourceCoefficient: 3, saeCoefficient: 2 },
