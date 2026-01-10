@@ -223,7 +223,7 @@ const OnboardingModal = ({ isOpen, onComplete }: any) => {
           {options.map((opt) => (
             <button
               key={opt.id}
-              onClick={() => onComplete(opt.trackId, opt.filter)}
+              onClick={() => onComplete(opt.trackId, opt.filter, opt.id === '1annee' ? 'S1' : 'S3')}
               className="flex items-center p-5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-violet-300 hover:shadow-lg hover:-translate-y-0.5 transition-all group text-left"
             >
               <div className="bg-white p-3 rounded-xl mr-4 text-violet-500 shadow-sm border border-slate-100 group-hover:text-violet-600 group-hover:scale-110 transition-all" aria-hidden="true">{opt.icon}</div>
@@ -408,13 +408,29 @@ const App: React.FC = () => {
     });
   };
 
-  const handleOnboardingComplete = (t: string, f: string) => {
+  const handleOnboardingComplete = (t: string, f: string, startingSemester: string = 'S1') => {
     setGrades({});
+    // Update track and filter first
     setActiveTrackId(t);
     setSemesterFilter(f);
-    setActiveSemesterId('S1');
+
+    // Set the correct start semester immediately (S1 or S3)
+    setActiveSemesterId(startingSemester);
+
+    // Reset view
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); // Instant to avoid visual scrolling while modal is closing
+
+    // Close modal last to prevent flash
     setIsOnboardingOpen(false);
   };
+
+  // ... (inside OnboardingModal, update onClick) ...
+  // But I need to update OnboardingModal component definition too which is above.
+  // Actually I will target the component specifically.
+  // Wait, I can't target two separate blocks with replace_file_content effectively if they are far apart unless I use multi_replace.
+  // handleOnboardingComplete is lines 411-417. OnboardingModal is lines 197-240.
+  // I will use multi_replace_file_content.
+
 
   const handleSimulateSuccess = () => {
     if (!confirm("Remplir les notes vides pour atteindre 10/20 par Compétence (UE) ?")) return;
