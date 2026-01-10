@@ -190,7 +190,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                   min="0" max="20" step="0.25" placeholder="-"
                   value={grades[mod.id] ?? ''}
                   onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                  className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-violet-200 focus:border-violet-400 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                  className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
               </div>
             ))}
           </div>
@@ -209,7 +209,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                   min="0" max="20" step="0.25" placeholder="-"
                   value={grades[mod.id] ?? ''}
                   onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                  className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-violet-200 focus:border-violet-400 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                  className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
               </div>
             ))}
           </div>
@@ -408,29 +408,29 @@ const App: React.FC = () => {
                 <div className="sticky top-6 space-y-6">
                   {/* RESULT CARD */}
                   <div className={`bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border transition-all duration-500 overflow-hidden ${hasDataForCurrentSemester ? 'border-violet-100' : 'border-slate-100'}`}>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${hasDataForCurrentSemester ? 'bg-violet-500' : 'bg-slate-300'}`}></div> Analyse
+                      </h3>
+                      {hasDataForCurrentSemester && (isValidated ? (
+                        <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide">Validé</span>
+                      ) : (
+                        <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide">En cours</span>
+                      ))}
+                    </div>
+
                     {hasDataForCurrentSemester ? (
                       <>
-                        <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-violet-500"></div> Analyse
-                          </h3>
-                          {isValidated ? (
-                            <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide">Validé</span>
-                          ) : (
-                            <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide">En cours</span>
-                          )}
-                        </div>
-
                         <div className="text-center mb-8 relative z-10">
                           <div className="text-sm text-slate-400 font-bold uppercase tracking-widest mb-2">Moyenne Générale</div>
-                          <div className={`text-5xl font-black tracking-tight leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>
+                          <div className={`text-6xl font-black tracking-tight leading-none ${isValidated ? 'text-violet-600' : 'text-slate-800'}`}>
                             {globalAverage.toFixed(2)}
                             <span className="text-lg text-slate-300 ml-1 font-bold">/20</span>
                           </div>
                         </div>
 
-                        <div className="h-[400px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
+                        <div className="h-[300px] w-full">
+                          <ResponsiveContainer width="100%" height={300}>
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} />
@@ -445,44 +445,48 @@ const App: React.FC = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="py-12 px-6 text-center">
-                        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
-                          <Calculator className="w-8 h-8" />
+                      <div className="py-8 px-6 text-center opacity-30 select-none pointer-events-none filter grayscale">
+                        <div className="text-center mb-8 relative z-10">
+                          <div className="text-sm text-slate-400 font-bold uppercase tracking-widest mb-2">Moyenne Générale</div>
+                          <div className="text-6xl font-black tracking-tight leading-none text-slate-200">
+                            --.--
+                            <span className="text-lg text-slate-200 ml-1 font-bold">/20</span>
+                          </div>
                         </div>
-                        <h3 className="text-lg font-black text-slate-800 mb-2">Prêt à simuler ?</h3>
-                        <p className="text-sm text-slate-500 leading-relaxed">
-                          Saisissez vos premières notes dans le formulaire pour générer votre radar de compétences et calculer votre moyenne instantanément.
-                        </p>
-                        <div className="mt-8 opacity-20 pointer-events-none grayscale blur-[1px]">
-                          <div className="h-32 w-32 rounded-full border-4 border-slate-300 mx-auto"></div>
+                        <div className="h-[300px] w-full">
+                          <ResponsiveContainer width="100%" height={300}>
+                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={activeSemester.competencies.map(c => ({ subject: c.id, A: 0, fullMark: 20 }))}>
+                              <PolarGrid stroke="#E2E8F0" />
+                              <PolarAngleAxis dataKey="subject" tick={{ fill: '#CBD5E1', fontSize: 10, fontWeight: 700 }} />
+                              <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
+                              <Radar name="Moyenne" dataKey="A" stroke="#CBD5E1" strokeWidth={2} fill="#CBD5E1" fillOpacity={0.1} />
+                            </RadarChart>
+                          </ResponsiveContainer>
                         </div>
                       </div>
                     )}
                   </div>
 
                   {/* SOFT CONVERSION CARD */}
-                  <div className="bg-gradient-to-br from-violet-600 to-indigo-600 rounded-3xl p-6 text-white shadow-lg shadow-violet-200 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-10 -translate-y-10 group-hover:scale-110 transition-transform duration-700"></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                          <Heart className="w-5 h-5 text-pink-200 fill-pink-200" />
-                        </div>
-                        <h4 className="font-bold text-sm">Soutenez le projet</h4>
+                  <div className="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between gap-4 group hover:border-violet-200 transition-all shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-violet-50 text-violet-600 rounded-lg">
+                        <Heart className="w-4 h-4 text-violet-500 fill-violet-500" />
                       </div>
-                      <p className="text-xs text-violet-100 leading-relaxed mb-4">
-                        Cet outil est gratuit et maintenu sur mon temps libre. Un simple suivi sur LinkedIn m'aide énormément !
-                      </p>
-                      <a
-                        href="https://www.linkedin.com/in/zineb-anssafou"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-between w-full px-4 py-3 bg-white text-violet-700 rounded-xl text-xs font-black shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
-                      >
-                        <span>Suivre sur LinkedIn</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </a>
+                      <div>
+                        <div className="text-xs font-bold text-slate-700">Soutenez le projet</div>
+                        <div className="text-[10px] text-slate-400 font-semibold">100% Gratuit & Open Source</div>
+                      </div>
                     </div>
+                    <a
+                      href="https://www.linkedin.com/in/zineb-anssafou"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] font-bold shadow-sm hover:scale-105 active:scale-95 transition-all"
+                    >
+                      <span>Rejoindre la communauté MMI</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </a>
                   </div>
 
                 </div>
