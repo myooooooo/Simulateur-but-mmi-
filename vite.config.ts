@@ -20,14 +20,8 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        // Enable minification
-        minify: 'terser',
-        terserOptions: {
-          compress: {
-            drop_console: true, // Remove console.log in production
-            drop_debugger: true,
-          },
-        },
+        // Enable minification with esbuild (faster and included by default)
+        minify: 'esbuild',
         // Chunk size warnings
         chunkSizeWarningLimit: 1000,
         // Code splitting optimization
@@ -54,6 +48,10 @@ export default defineConfig(({ mode }) => {
       // Performance optimizations
       optimizeDeps: {
         include: ['react', 'react-dom', 'recharts', 'lucide-react'],
+      },
+      // Esbuild options for minification
+      esbuild: {
+        drop: mode === 'production' ? ['console', 'debugger'] : [],
       },
     };
 });
