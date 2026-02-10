@@ -38,5 +38,6 @@ export interface Track {
   semesters: SemesterData[];
 }
 
-// Map of module ID to grade (0-20)
+// Map of "moduleId-competenceId" to grade (0-20)
+// Permet d'avoir des notes différentes pour un même module selon la compétence
 export type GradeMap = Record<string, number>;

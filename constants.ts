@@ -156,13 +156,13 @@ const S4_DW: SemesterData = {
   name: 'Semestre 4 (Développement Web)',
   competencies: [
     { id: 'C4.1', name: 'Comprendre', color: COLORS[0], ects: 4, resourceCoefficient: 4, saeCoefficient: 6 },
-    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 4, saeCoefficient: 4 },
-    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 8, resourceCoefficient: 8, saeCoefficient: 12 },
-    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 16, resourceCoefficient: 16, saeCoefficient: 24 },
+    { id: 'C4.2', name: 'Concevoir', color: COLORS[1], ects: 4, resourceCoefficient: 4, saeCoefficient: 6 },
+    { id: 'C4.3', name: 'Exprimer', color: COLORS[2], ects: 6, resourceCoefficient: 8, saeCoefficient: 12 },
+    { id: 'C4.4', name: 'Développer', color: COLORS[3], ects: 10, resourceCoefficient: 16, saeCoefficient: 24 },
     { id: 'C4.5', name: 'Entreprendre', color: COLORS[4], ects: 6, resourceCoefficient: 6, saeCoefficient: 8 },
   ],
   modules: [
-    { id: 'S4-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.3', coefficient: 1 }, { competenceId: 'C4.5', coefficient: 2 }] },
+    { id: 'S4-R1', name: 'Anglais', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.2', coefficient: 1 }, { competenceId: 'C4.5', coefficient: 2 }] },
     { id: 'S4-R2', name: 'Économie/Gestion/Droit', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.5', coefficient: 2 }] },
     { id: 'S4-R3', name: 'Design d\'expérience', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.1', coefficient: 4 }, { competenceId: 'C4.2', coefficient: 3 }] },
     { id: 'S4-R4', name: 'Expression', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.5', coefficient: 2 }] },
@@ -171,7 +171,7 @@ const S4_DW: SemesterData = {
     { id: 'S4-R7', name: 'Dev Back', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.4', coefficient: 6 }] },
     { id: 'S4-R8', name: 'Déploiement', type: ModuleType.RESOURCE, weightings: [{ competenceId: 'C4.4', coefficient: 4 }] },
     { id: 'S4-SAE1', name: 'SAE Développement Web', type: ModuleType.SAE, weightings: [{ competenceId: 'C4.1', coefficient: 2 }, { competenceId: 'C4.2', coefficient: 2 }, { competenceId: 'C4.4', coefficient: 6 }, { competenceId: 'C4.5', coefficient: 2 }] },
-    { id: 'S4-SAE2', name: 'SAE Dispositif interactif', type: ModuleType.SAE, weightings: [{ competenceId: 'C4.4', coefficient: 4 }, { competenceId: 'C4.5', coefficient: 2 }] },
+    { id: 'S4-SAE2', name: 'SAE Dispositif interactif', type: ModuleType.SAE, weightings: [{ competenceId: 'C4.3', coefficient: 4 }, { competenceId: 'C4.4', coefficient: 2 }, { competenceId: 'C4.5', coefficient: 2 }] },
     { id: 'S4-PORT', name: 'Portfolio', type: ModuleType.SAE, weightings: [{ competenceId: 'C4.1', coefficient: 2 }, { competenceId: 'C4.2', coefficient: 2 }, { competenceId: 'C4.3', coefficient: 4 }, { competenceId: 'C4.4', coefficient: 8 }, { competenceId: 'C4.5', coefficient: 3 }] },
     { id: 'S4-STG', name: 'Stage', type: ModuleType.SAE, weightings: [{ competenceId: 'C4.1', coefficient: 2 }, { competenceId: 'C4.2', coefficient: 2 }, { competenceId: 'C4.3', coefficient: 4 }, { competenceId: 'C4.4', coefficient: 8 }, { competenceId: 'C4.5', coefficient: 3 }] },
   ]
