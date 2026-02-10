@@ -401,8 +401,10 @@ const App: React.FC = () => {
   // Check if current semester has any data
   const hasDataForCurrentSemester = useMemo(() => {
     return Object.keys(grades).some(gradeKey => {
-      // gradeKey format: "moduleId-competenceId"
-      const moduleId = gradeKey.split('-')[0];
+      // gradeKey format: "moduleId-competenceId" e.g., "S3-R1-C3.1"
+      // moduleId can contain dashes (e.g., "S3-R1"), competenceId is last part (e.g., "C3.1")
+      const lastDashIndex = gradeKey.lastIndexOf('-');
+      const moduleId = gradeKey.substring(0, lastDashIndex);
       return activeSemester.modules.some(m => m.id === moduleId);
     });
   }, [grades, activeSemester]);
