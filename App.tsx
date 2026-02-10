@@ -279,35 +279,24 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
           </h4>
           <div className="space-y-3">
             {resources.map((mod: any) => {
-              // Un module peut contribuer à plusieurs compétences
-              const relevantWeightings = mod.weightings.filter((w: any) =>
-                semester.competencies.some(c => c.id === w.competenceId)
-              );
+              // Ne montrer que le weighting pour la compétence actuelle
+              const weighting = mod.weightings.find((w: any) => w.competenceId === comp.id);
+              if (!weighting) return null;
 
+              const gradeKey = `${mod.id}-${comp.id}`;
               return (
-                <div key={mod.id} className="flex flex-col gap-2 group">
-                  <div className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                <div key={mod.id} className="flex items-center justify-between group">
+                  <label htmlFor={`grade-${gradeKey}`} className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors flex-1">
                     {mod.name}
-                  </div>
-                  {relevantWeightings.map((weighting: any) => {
-                    const gradeKey = `${mod.id}-${weighting.competenceId}`;
-                    const comp = semester.competencies.find(c => c.id === weighting.competenceId);
-                    return (
-                      <div key={gradeKey} className="flex items-center justify-between pl-3 border-l-2" style={{ borderColor: comp?.color || '#CBD5E1' }}>
-                        <label htmlFor={`grade-${gradeKey}`} className="text-xs text-slate-500 flex items-center gap-1.5">
-                          <span className="font-mono font-bold" style={{ color: comp?.color }}>{weighting.competenceId}</span>
-                          <span className="text-slate-400">×{weighting.coefficient}</span>
-                        </label>
-                        <input
-                          id={`grade-${gradeKey}`}
-                          type="number"
-                          min="0" max="20" step="0.25" placeholder="-"
-                          value={grades[gradeKey] ?? ''}
-                          onChange={(e) => onGradeChange(mod.id, weighting.competenceId, e.target.value)}
-                          className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
-                      </div>
-                    );
-                  })}
+                    <span className="text-xs text-slate-400 ml-2">×{weighting.coefficient}</span>
+                  </label>
+                  <input
+                    id={`grade-${gradeKey}`}
+                    type="number"
+                    min="0" max="20" step="0.25" placeholder="-"
+                    value={grades[gradeKey] ?? ''}
+                    onChange={(e) => onGradeChange(mod.id, comp.id, e.target.value)}
+                    className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
                 </div>
               )
             })}
@@ -319,35 +308,24 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
           </h4>
           <div className="space-y-3">
             {saes.map((mod: any) => {
-              // Un module peut contribuer à plusieurs compétences
-              const relevantWeightings = mod.weightings.filter((w: any) =>
-                semester.competencies.some(c => c.id === w.competenceId)
-              );
+              // Ne montrer que le weighting pour la compétence actuelle
+              const weighting = mod.weightings.find((w: any) => w.competenceId === comp.id);
+              if (!weighting) return null;
 
+              const gradeKey = `${mod.id}-${comp.id}`;
               return (
-                <div key={mod.id} className="flex flex-col gap-2 group">
-                  <div className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                <div key={mod.id} className="flex items-center justify-between group">
+                  <label htmlFor={`grade-${gradeKey}`} className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors flex-1">
                     {mod.name}
-                  </div>
-                  {relevantWeightings.map((weighting: any) => {
-                    const gradeKey = `${mod.id}-${weighting.competenceId}`;
-                    const comp = semester.competencies.find(c => c.id === weighting.competenceId);
-                    return (
-                      <div key={gradeKey} className="flex items-center justify-between pl-3 border-l-2" style={{ borderColor: comp?.color || '#CBD5E1' }}>
-                        <label htmlFor={`grade-${gradeKey}`} className="text-xs text-slate-500 flex items-center gap-1.5">
-                          <span className="font-mono font-bold" style={{ color: comp?.color }}>{weighting.competenceId}</span>
-                          <span className="text-slate-400">×{weighting.coefficient}</span>
-                        </label>
-                        <input
-                          id={`grade-${gradeKey}`}
-                          type="number"
-                          min="0" max="20" step="0.25" placeholder="-"
-                          value={grades[gradeKey] ?? ''}
-                          onChange={(e) => onGradeChange(mod.id, weighting.competenceId, e.target.value)}
-                          className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
-                      </div>
-                    );
-                  })}
+                    <span className="text-xs text-slate-400 ml-2">×{weighting.coefficient}</span>
+                  </label>
+                  <input
+                    id={`grade-${gradeKey}`}
+                    type="number"
+                    min="0" max="20" step="0.25" placeholder="-"
+                    value={grades[gradeKey] ?? ''}
+                    onChange={(e) => onGradeChange(mod.id, comp.id, e.target.value)}
+                    className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
                 </div>
               )
             })}
@@ -665,8 +643,8 @@ const App: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="h-[350px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
+                        <div className="h-[350px] w-full" style={{ minHeight: '350px' }}>
+                          <ResponsiveContainer width="100%" height="100%" minHeight={350}>
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} />
@@ -690,8 +668,8 @@ const App: React.FC = () => {
                             <span className="text-lg text-slate-200 ml-1 font-bold">/20</span>
                           </div>
                         </div>
-                        <div className="h-[350px] w-full">
-                          <ResponsiveContainer width="100%" height="100%">
+                        <div className="h-[350px] w-full" style={{ minHeight: '350px' }}>
+                          <ResponsiveContainer width="100%" height="100%" minHeight={350}>
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={activeSemester.competencies.map(c => ({ subject: c.id, A: 0, fullMark: 20 }))}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#CBD5E1', fontSize: 10, fontWeight: 700 }} />
