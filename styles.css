@@ -1,0 +1,139 @@
+/* Global styles and animations */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%);
+  background-size: 1000px 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DDD6FE;
+  border-radius: 10px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  /* Reduce padding on mobile */
+  header {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Improve inputs on mobile */
+  input[type="number"] {
+    font-size: 16px !important; /* Prevents iOS zoom */
+    min-width: 60px;
+  }
+
+  /* Adapt competence cards */
+  .competence-card {
+    padding: 1rem !important;
+  }
+
+  /* Better readability of titles on mobile */
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h3 {
+    font-size: 1rem !important;
+  }
+
+  /* Optimize selection modal */
+  .modal-content {
+    padding: 1.5rem !important;
+  }
+
+  /* Improve buttons on mobile */
+  button {
+    min-height: 44px; /* Recommended touch size */
+  }
+
+  /* Reduce gaps on mobile */
+  .gap-8 {
+    gap: 1rem !important;
+  }
+
+  .gap-12 {
+    gap: 1.5rem !important;
+  }
+}
+
+/* Optimizations for very small screens */
+@media (max-width: 375px) {
+  body {
+    font-size: 14px;
+  }
+
+  input[type="number"] {
+    min-width: 50px !important;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Mobile landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+  header {
+    height: 3rem !important;
+  }
+
+  .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
