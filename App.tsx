@@ -14,7 +14,9 @@ const calculateWeightedAverage = (modules: any[], compId: string, grades: GradeM
   modules.forEach(mod => {
     const weighting = mod.weightings.find((w: any) => w.competenceId === compId);
     if (weighting) {
-      const grade = grades[mod.id];
+      // Clé composite: moduleId-competenceId pour permettre des notes différentes par compétence
+      const gradeKey = `${mod.id}-${compId}`;
+      const grade = grades[gradeKey];
       if (grade !== undefined && grade !== null) {
         totalScore += grade * weighting.coefficient;
         totalCoeff += weighting.coefficient;
@@ -76,8 +78,9 @@ const calculateUniformTargetGrade = (comp: Competence, semester: SemesterData, g
   resources.forEach(m => {
     const w = m.weightings.find(w => w.competenceId === compId)!;
     totalResCoeff += w.coefficient;
-    if (grades[m.id] !== undefined) {
-      sumResFilled += grades[m.id] * w.coefficient;
+    const gradeKey = `${m.id}-${compId}`;
+    if (grades[gradeKey] !== undefined) {
+      sumResFilled += grades[gradeKey] * w.coefficient;
     } else {
       sumResEmptyCoeff += w.coefficient;
     }
@@ -90,8 +93,9 @@ const calculateUniformTargetGrade = (comp: Competence, semester: SemesterData, g
   saes.forEach(m => {
     const w = m.weightings.find(w => w.competenceId === compId)!;
     totalSaeCoeff += w.coefficient;
-    if (grades[m.id] !== undefined) {
-      sumSaeFilled += grades[m.id] * w.coefficient;
+    const gradeKey = `${m.id}-${compId}`;
+    if (grades[gradeKey] !== undefined) {
+      sumSaeFilled += grades[gradeKey] * w.coefficient;
     } else {
       sumSaeEmptyCoeff += w.coefficient;
     }
@@ -275,23 +279,35 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
           </h4>
           <div className="space-y-3">
             {resources.map((mod: any) => {
+              // Un module peut contribuer à plusieurs compétences
+              const relevantWeightings = mod.weightings.filter((w: any) =>
+                activeSemester.competencies.some(c => c.id === w.competenceId)
+              );
+
               return (
-                <div key={mod.id} className="flex flex-col gap-1 group">
-                  <div className="flex items-center justify-between">
-                    <label htmlFor={`grade-${mod.id}`} className="text-sm font-semibold text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors cursor-pointer">{mod.name}</label>
-                    <input
-                      id={`grade-${mod.id}`}
-                      type="number"
-                      min="0" max="20" step="0.25" placeholder="-"
-                      value={grades[mod.id] ?? ''}
-                      onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                      className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                <div key={mod.id} className="flex flex-col gap-2 group">
+                  <div className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                    {mod.name}
                   </div>
-                  {grades[mod.id] === undefined && uniformTarget !== null && (
-                    <div className={`text-[10px] font-bold text-right ${uniformTarget > 20 ? 'text-rose-500' : uniformTarget < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
-                      {uniformTarget > 20 ? 'Validation impossible' : uniformTarget < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{uniformTarget}</span></span>)}
-                    </div>
-                  )}
+                  {relevantWeightings.map((weighting: any) => {
+                    const gradeKey = `${mod.id}-${weighting.competenceId}`;
+                    const comp = activeSemester.competencies.find(c => c.id === weighting.competenceId);
+                    return (
+                      <div key={gradeKey} className="flex items-center justify-between pl-3 border-l-2" style={{ borderColor: comp?.color || '#CBD5E1' }}>
+                        <label htmlFor={`grade-${gradeKey}`} className="text-xs text-slate-500 flex items-center gap-1.5">
+                          <span className="font-mono font-bold" style={{ color: comp?.color }}>{weighting.competenceId}</span>
+                          <span className="text-slate-400">×{weighting.coefficient}</span>
+                        </label>
+                        <input
+                          id={`grade-${gradeKey}`}
+                          type="number"
+                          min="0" max="20" step="0.25" placeholder="-"
+                          value={grades[gradeKey] ?? ''}
+                          onChange={(e) => handleGradeChange(mod.id, weighting.competenceId, e.target.value)}
+                          className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                      </div>
+                    );
+                  })}
                 </div>
               )
             })}
@@ -303,23 +319,35 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
           </h4>
           <div className="space-y-3">
             {saes.map((mod: any) => {
+              // Un module peut contribuer à plusieurs compétences
+              const relevantWeightings = mod.weightings.filter((w: any) =>
+                activeSemester.competencies.some(c => c.id === w.competenceId)
+              );
+
               return (
-                <div key={mod.id} className="flex flex-col gap-1 group">
-                  <div className="flex items-center justify-between">
-                    <label htmlFor={`grade-${mod.id}`} className="text-sm font-semibold text-slate-600 leading-tight flex-1 mr-4 group-hover:text-slate-900 transition-colors cursor-pointer">{mod.name}</label>
-                    <input
-                      id={`grade-${mod.id}`}
-                      type="number"
-                      min="0" max="20" step="0.25" placeholder="-"
-                      value={grades[mod.id] ?? ''}
-                      onChange={(e) => onGradeChange(mod.id, e.target.value)}
-                      className={`w-16 h-10 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[mod.id] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                <div key={mod.id} className="flex flex-col gap-2 group">
+                  <div className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+                    {mod.name}
                   </div>
-                  {grades[mod.id] === undefined && uniformTarget !== null && (
-                    <div className={`text-[10px] font-bold text-right ${uniformTarget > 20 ? 'text-rose-500' : uniformTarget < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
-                      {uniformTarget > 20 ? 'Validation impossible' : uniformTarget < 0 ? 'Déjà validé' : (<span>Obj. 10 : <span className="text-violet-600">{uniformTarget}</span></span>)}
-                    </div>
-                  )}
+                  {relevantWeightings.map((weighting: any) => {
+                    const gradeKey = `${mod.id}-${weighting.competenceId}`;
+                    const comp = activeSemester.competencies.find(c => c.id === weighting.competenceId);
+                    return (
+                      <div key={gradeKey} className="flex items-center justify-between pl-3 border-l-2" style={{ borderColor: comp?.color || '#CBD5E1' }}>
+                        <label htmlFor={`grade-${gradeKey}`} className="text-xs text-slate-500 flex items-center gap-1.5">
+                          <span className="font-mono font-bold" style={{ color: comp?.color }}>{weighting.competenceId}</span>
+                          <span className="text-slate-400">×{weighting.coefficient}</span>
+                        </label>
+                        <input
+                          id={`grade-${gradeKey}`}
+                          type="number"
+                          min="0" max="20" step="0.25" placeholder="-"
+                          value={grades[gradeKey] ?? ''}
+                          onChange={(e) => handleGradeChange(mod.id, weighting.competenceId, e.target.value)}
+                          className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
+                      </div>
+                    );
+                  })}
                 </div>
               )
             })}
@@ -394,17 +422,20 @@ const App: React.FC = () => {
 
   // Check if current semester has any data
   const hasDataForCurrentSemester = useMemo(() => {
-    return Object.keys(grades).some(gradeId =>
-      activeSemester.modules.some(m => m.id === gradeId)
-    );
+    return Object.keys(grades).some(gradeKey => {
+      // gradeKey format: "moduleId-competenceId"
+      const moduleId = gradeKey.split('-')[0];
+      return activeSemester.modules.some(m => m.id === moduleId);
+    });
   }, [grades, activeSemester]);
 
-  const handleGradeChange = (moduleId: string, value: string) => {
+  const handleGradeChange = (moduleId: string, competenceId: string, value: string) => {
+    const gradeKey = `${moduleId}-${competenceId}`;
     setGrades(prev => {
       const sanitizedValue = value.replace(',', '.');
-      if (sanitizedValue === '') { const n = { ...prev }; delete n[moduleId]; return n; }
+      if (sanitizedValue === '') { const n = { ...prev }; delete n[gradeKey]; return n; }
       const num = parseFloat(sanitizedValue);
-      return { ...prev, [moduleId]: Math.min(20, Math.max(0, isNaN(num) ? 0 : num)) };
+      return { ...prev, [gradeKey]: Math.min(20, Math.max(0, isNaN(num) ? 0 : num)) };
     });
   };
 
@@ -453,10 +484,14 @@ const App: React.FC = () => {
       // Ensure bounds
       X = Math.max(0, X);
 
-      // Apply to all empty modules of this comp
+      // Apply to all empty module-competence pairs
       semester.modules.forEach(m => {
-        if (newGrades[m.id] === undefined && m.weightings.some((w: any) => w.competenceId === comp.id)) {
-          newGrades[m.id] = X as number;
+        const weighting = m.weightings.find((w: any) => w.competenceId === comp.id);
+        if (weighting) {
+          const gradeKey = `${m.id}-${comp.id}`;
+          if (newGrades[gradeKey] === undefined) {
+            newGrades[gradeKey] = X as number;
+          }
         }
       });
     });
