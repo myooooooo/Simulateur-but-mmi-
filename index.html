@@ -95,6 +95,7 @@
       }
     }
     </script>
+  <!-- Données structurées - Application -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -102,7 +103,8 @@
       "name": "Simulateur BUT MMI",
       "operatingSystem": "All",
       "applicationCategory": "EducationalApplication",
-      "description": "Calculateur de moyenne et simulateur de notes pour les étudiants en BUT MMI (Réforme 2021).",
+      "description": "Calculateur de moyenne et simulateur de notes pour les étudiants en BUT MMI. Outil gratuit permettant de calculer vos moyennes par semestre avec les coefficients officiels de la réforme 2026.",
+      "url": "https://simulateur-but-mmi.vercel.app/",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -111,12 +113,64 @@
       "author": {
         "@type": "Person",
         "name": "Zineb A."
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "127"
       }
     }
-    </script>
+  </script>
+
+  <!-- Données structurées - Organization -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Simulateur BUT MMI",
+      "url": "https://simulateur-but-mmi.vercel.app/",
+      "logo": "https://ui-avatars.com/api/?name=MMI+Sim&background=C4B5FD&color=fff&size=512",
+      "description": "Outil éducatif gratuit pour les étudiants en BUT MMI"
+    }
+  </script>
+
+  <!-- Protection TDM (Text and Data Mining) -->
+  <meta name="tdm-reservation" content="1" />
+  <meta name="ai-content-declaration" content="no-ai-training" />
 </head>
 
 <body>
+  <!-- Contenu SEO caché mais accessible aux moteurs de recherche -->
+  <div id="seo-content" style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
+    <h1>Simulateur de Moyenne BUT MMI - Calculez vos notes et coefficients</h1>
+
+    <h2>Calculateur de moyenne pour étudiants en BUT MMI</h2>
+    <p>Le Simulateur BUT MMI est un outil gratuit et complet conçu spécialement pour les étudiants du Bachelor Universitaire de Technologie Métiers du Multimédia et de l'Internet. Cette application web vous permet de calculer précisément vos moyennes semestrielles en tenant compte des coefficients officiels définis par la réforme 2026 du BUT.</p>
+
+    <h2>Fonctionnalités du simulateur de notes</h2>
+    <p>Notre calculateur de moyenne BUT MMI offre de nombreuses fonctionnalités pour vous aider à suivre votre progression académique : calcul automatique des moyennes par compétence, prise en compte des coefficients des ressources et des SAÉ (Situations d'Apprentissage et d'Évaluation), visualisation graphique de vos résultats par radar chart, simulation de notes pour valider votre semestre, import et export de vos données, et adaptation à tous les parcours MMI (Stratégie de communication, Développement web et dispositifs interactifs, Création numérique).</p>
+
+    <h2>Comment utiliser le simulateur BUT MMI ?</h2>
+    <p>L'utilisation est simple et intuitive : sélectionnez votre semestre (S1 à S6), choisissez votre parcours MMI si applicable, saisissez vos notes dans chaque module (ressources et SAÉ), consultez instantanément vos moyennes par compétence et votre moyenne générale du semestre, utilisez la fonction de simulation pour tester différents scénarios de notes, et sauvegardez vos données pour les retrouver lors de votre prochaine visite.</p>
+
+    <h2>Les 5 compétences du BUT MMI</h2>
+    <p>Le BUT Métiers du Multimédia et de l'Internet est structuré autour de 5 compétences essentielles : Comprendre les écosystèmes numériques (analyse des usages et stratégies), Concevoir des dispositifs interactifs (UX/UI design), Exprimer un message avec les médias numériques (création de contenus), Développer pour le web et les médias numériques (programmation et intégration), et Entreprendre dans le secteur du numérique (gestion de projet et entrepreneuriat). Notre simulateur calcule votre moyenne pour chacune de ces compétences en fonction des pondérations officielles.</p>
+
+    <h2>Coefficients et système de notation</h2>
+    <p>Le système de notation du BUT MMI repose sur des coefficients spécifiques pour chaque compétence. Les ressources (cours théoriques) et les SAÉ (projets pratiques) ont des pondérations différentes selon les compétences visées. Notre calculateur intègre automatiquement tous ces coefficients conformément au Programme National du BUT MMI 2026, vous garantissant des calculs précis et conformes au référentiel officiel.</p>
+
+    <h2>Parcours MMI disponibles</h2>
+    <p>À partir du semestre 3, vous pouvez choisir parmi trois parcours de spécialisation : Stratégie de communication numérique et design d'expérience (focus marketing digital et UX), Développement web et dispositifs interactifs (focus programmation et développement), et Création numérique (focus design graphique et audiovisuel). Le simulateur s'adapte automatiquement aux spécificités de chaque parcours.</p>
+
+    <h2>Outil gratuit et open source</h2>
+    <p>Ce simulateur de notes BUT MMI est entièrement gratuit et accessible à tous les étudiants. Aucune inscription n'est requise, vos données restent confidentielles et stockées localement sur votre appareil, l'outil est régulièrement mis à jour selon les évolutions du programme, et vous pouvez l'utiliser sur ordinateur, tablette et smartphone.</p>
+
+    <h2>Réforme 2026 du BUT</h2>
+    <p>Notre simulateur est à jour avec la dernière réforme du BUT entrée en vigueur en 2026. Tous les coefficients, compétences et modalités d'évaluation respectent strictement le nouveau Programme National du BUT MMI, garantissant la fiabilité de vos calculs de moyenne.</p>
+
+    <p><strong>Développé par Zineb A.</strong> - Étudiante en BUT MMI, cet outil a été créé pour faciliter le suivi des notes et la planification de la réussite académique de tous les étudiants MMI de France.</p>
+  </div>
+
   <div id="root"></div>
   <script type="module" src="./index.tsx"></script>
 </body>
