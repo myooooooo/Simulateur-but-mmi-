@@ -20,7 +20,15 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        minify: false,
+        minify: 'esbuild',
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'vendor': ['react', 'react-dom'],
+              'charts': ['recharts'],
+            },
+          },
+        },
       }
     };
 });
