@@ -388,9 +388,10 @@ const App: React.FC = () => {
     const avg = calculateCompetenceAverage(comp, activeSemester, grades);
     // Vérifier si on a au moins une note pour cette compétence
     const hasData = Object.keys(grades).some(gradeKey => {
-      const lastDashIndex = gradeKey.lastIndexOf('-');
-      const moduleId = gradeKey.substring(0, lastDashIndex);
-      const competenceId = gradeKey.substring(lastDashIndex + 1);
+      const match = gradeKey.match(/^(.+)-(C\d+\.\d+)$/);
+      if (!match) return false;
+      const moduleId = match[1];
+      const competenceId = match[2];
       return competenceId === comp.id && activeSemester.modules.some(m => m.id === moduleId);
     });
     return hasData && avg !== null && avg < 8;
@@ -413,9 +414,10 @@ const App: React.FC = () => {
   const hasDataForCurrentSemester = useMemo(() => {
     return Object.keys(grades).some(gradeKey => {
       // gradeKey format: "moduleId-competenceId" e.g., "S3-R1-C3.1"
-      // moduleId can contain dashes (e.g., "S3-R1"), competenceId is last part (e.g., "C3.1")
-      const lastDashIndex = gradeKey.lastIndexOf('-');
-      const moduleId = gradeKey.substring(0, lastDashIndex);
+      // Use regex to properly parse: moduleId can have dashes, competenceId is "C#.#"
+      const match = gradeKey.match(/^(.+)-(C\d+\.\d+)$/);
+      if (!match) return false;
+      const moduleId = match[1]; // e.g., "S3-R1"
       return activeSemester.modules.some(m => m.id === moduleId);
     });
   }, [grades, activeSemester]);
