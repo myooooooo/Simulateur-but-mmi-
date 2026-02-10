@@ -83,6 +83,81 @@
       background: #DDD6FE;
       border-radius: 10px;
     }
+
+    /* Optimisations responsive mobile */
+    @media (max-width: 640px) {
+      /* Réduction des paddings sur mobile */
+      header {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+
+      /* Amélioration des inputs sur mobile */
+      input[type="number"] {
+        font-size: 16px !important; /* Évite le zoom automatique iOS */
+        min-width: 60px;
+      }
+
+      /* Adaptation des cartes de compétences */
+      .competence-card {
+        padding: 1rem !important;
+      }
+
+      /* Meilleure lisibilité des titres sur mobile */
+      h1 {
+        font-size: 1.75rem !important;
+      }
+
+      h3 {
+        font-size: 1rem !important;
+      }
+
+      /* Optimisation du modal de sélection */
+      .modal-content {
+        padding: 1.5rem !important;
+      }
+
+      /* Amélioration des boutons sur mobile */
+      button {
+        min-height: 44px; /* Taille tactile recommandée */
+      }
+
+      /* Réduction des gaps sur mobile */
+      .gap-8 {
+        gap: 1rem !important;
+      }
+
+      .gap-12 {
+        gap: 1.5rem !important;
+      }
+    }
+
+    /* Optimisations pour très petits écrans */
+    @media (max-width: 375px) {
+      body {
+        font-size: 14px;
+      }
+
+      input[type="number"] {
+        min-width: 50px !important;
+      }
+
+      .text-3xl {
+        font-size: 1.5rem !important;
+      }
+    }
+
+    /* Mode paysage mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      header {
+        height: 3rem !important;
+      }
+
+      .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+    }
   </style>
   <script type="importmap">
     {
