@@ -1,5 +1,0 @@
-{
-  "name": "Simulateur BUT MMI",
-  "description": "Un outil complet pour simuler les moyennes du BUT Métiers du Multimédia et de l'Internet, calculant les notes par UE et par compétence selon les coefficients officiels.",
-  "requestFramePermissions": []
-}

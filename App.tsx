@@ -355,7 +355,9 @@ const App: React.FC = () => {
         if (parsed.track) setActiveTrackId(parsed.track);
         if (parsed.sem) setActiveSemesterId(parsed.sem);
         if (parsed.filter) setSemesterFilter(parsed.filter);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        // Silently fail - invalid localStorage data
+      }
     }
   }, []);
 
@@ -384,8 +386,14 @@ const App: React.FC = () => {
 
   const failedCompetencies = useMemo(() => activeSemester.competencies.filter(comp => {
     const avg = calculateCompetenceAverage(comp, activeSemester, grades);
-    const hasData = Object.keys(grades).some(id => activeSemester.modules.some(m => m.id === id && m.weightings.some(w => w.competenceId === comp.id)));
-    return hasData && avg < 8;
+    // Vérifier si on a au moins une note pour cette compétence
+    const hasData = Object.keys(grades).some(gradeKey => {
+      const lastDashIndex = gradeKey.lastIndexOf('-');
+      const moduleId = gradeKey.substring(0, lastDashIndex);
+      const competenceId = gradeKey.substring(lastDashIndex + 1);
+      return competenceId === comp.id && activeSemester.modules.some(m => m.id === moduleId);
+    });
+    return hasData && avg !== null && avg < 8;
   }), [activeSemester, grades]);
 
   const isValidated = globalAverage >= 10 && failedCompetencies.length === 0;
@@ -394,7 +402,10 @@ const App: React.FC = () => {
   const progress = useMemo(() => {
     const totalModules = activeSemester.modules.length;
     if (totalModules === 0) return 0;
-    const filledModules = activeSemester.modules.filter(m => grades[m.id] !== undefined).length;
+    // Un module est rempli s'il a au moins une note pour au moins une compétence
+    const filledModules = activeSemester.modules.filter(m =>
+      Object.keys(grades).some(gradeKey => gradeKey.startsWith(m.id + '-'))
+    ).length;
     return Math.round((filledModules / totalModules) * 100);
   }, [activeSemester, grades]);
 
