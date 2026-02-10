@@ -192,7 +192,7 @@ const TopBar = ({ onGoHome, progress }: { onGoHome: () => void, progress: number
         className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-600 transition-colors bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-violet-200"
       >
         <Linkedin className="w-4 h-4" />
-        <span className="hidden lg:inline">Zineb A.</span>
+        <span className="hidden lg:inline">Zineb ANSSAFOU</span>
       </a>
     </div>
   </header>
@@ -401,8 +401,10 @@ const App: React.FC = () => {
   // Check if current semester has any data
   const hasDataForCurrentSemester = useMemo(() => {
     return Object.keys(grades).some(gradeKey => {
-      // gradeKey format: "moduleId-competenceId"
-      const moduleId = gradeKey.split('-')[0];
+      // gradeKey format: "moduleId-competenceId" e.g., "S3-R1-C3.1"
+      // moduleId can contain dashes (e.g., "S3-R1"), competenceId is last part (e.g., "C3.1")
+      const lastDashIndex = gradeKey.lastIndexOf('-');
+      const moduleId = gradeKey.substring(0, lastDashIndex);
       return activeSemester.modules.some(m => m.id === moduleId);
     });
   }, [grades, activeSemester]);
