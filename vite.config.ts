@@ -18,6 +18,42 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      build: {
+        // Enable minification
+        minify: 'terser',
+        terserOptions: {
+          compress: {
+            drop_console: true, // Remove console.log in production
+            drop_debugger: true,
+          },
+        },
+        // Chunk size warnings
+        chunkSizeWarningLimit: 1000,
+        // Code splitting optimization
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'vendor-react': ['react', 'react-dom'],
+              'vendor-charts': ['recharts'],
+              'vendor-icons': ['lucide-react'],
+            },
+            // Optimize chunk file names
+            chunkFileNames: 'assets/js/[name]-[hash].js',
+            entryFileNames: 'assets/js/[name]-[hash].js',
+            assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+          },
+        },
+        // Source maps for debugging (disable in production if not needed)
+        sourcemap: mode !== 'production',
+        // Target modern browsers for better optimization
+        target: 'esnext',
+        // CSS code splitting
+        cssCodeSplit: true,
+      },
+      // Performance optimizations
+      optimizeDeps: {
+        include: ['react', 'react-dom', 'recharts', 'lucide-react'],
+      },
     };
 });

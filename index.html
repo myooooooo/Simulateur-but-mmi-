@@ -10,13 +10,26 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>BUT MMI : Simulateur de Moyenne & Coefficients (Réforme 2026)</title>
 
+  <!-- Resource Hints for Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+  <link rel="dns-prefetch" href="https://ui-avatars.com" />
+  <link rel="dns-prefetch" href="https://aistudiocdn.com" />
+
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=MMI&background=C4B5FD&color=fff&size=180" />
   <link rel="manifest" href="/manifest.json" />
 
+  <!-- Theme and PWA -->
+  <meta name="theme-color" content="#C4B5FD" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
   <meta name="description"
     content="Simulateur de notes pour les étudiants en BUT MMI. Calculez vos moyennes par semestre avec les coefficients officiels. Outil gratuit créé par Zineb A." />
+  <meta name="keywords" content="BUT MMI, simulateur notes, calculateur moyenne, coefficients MMI, BUT Métiers du Multimédia et de l'Internet, parcours MMI, semestre MMI, réforme 2026" />
   <meta name="author" content="Zineb A." />
   <link rel="canonical" href="https://simulateur-but-mmi.vercel.app/" />
 
@@ -27,10 +40,20 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://simulateur-but-mmi.vercel.app/" />
   <meta property="og:image" content="https://ui-avatars.com/api/?name=MMI+Sim&background=C4B5FD&color=fff&size=512" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Simulateur BUT MMI - Calculez vos moyennes" />
+  <meta name="twitter:description" content="Simulateur de notes pour les étudiants en BUT MMI. Calculez vos moyennes par semestre avec les coefficients officiels." />
+  <meta name="twitter:image" content="https://ui-avatars.com/api/?name=MMI+Sim&background=C4B5FD&color=fff&size=512" />
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" /></noscript>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
     body {
       font-family: 'Inter', sans-serif;

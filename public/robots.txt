@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /assets/
+Disallow: /*.json$
+Disallow: /*.ts$
+Disallow: /*.tsx$
+
+# Crawl delay for polite bots
+Crawl-delay: 1
 
 Sitemap: https://simulateur-but-mmi.vercel.app/sitemap.xml
