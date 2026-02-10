@@ -192,7 +192,7 @@ const TopBar = ({ onGoHome, progress }: { onGoHome: () => void, progress: number
         className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-600 transition-colors bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-violet-200"
       >
         <Linkedin className="w-4 h-4" />
-        <span className="hidden lg:inline">Zineb A.</span>
+        <span className="hidden lg:inline">Zineb ANSSAFOU</span>
       </a>
     </div>
   </header>
