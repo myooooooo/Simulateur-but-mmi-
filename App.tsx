@@ -281,7 +281,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
             {resources.map((mod: any) => {
               // Un module peut contribuer à plusieurs compétences
               const relevantWeightings = mod.weightings.filter((w: any) =>
-                activeSemester.competencies.some(c => c.id === w.competenceId)
+                semester.competencies.some(c => c.id === w.competenceId)
               );
 
               return (
@@ -291,7 +291,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                   </div>
                   {relevantWeightings.map((weighting: any) => {
                     const gradeKey = `${mod.id}-${weighting.competenceId}`;
-                    const comp = activeSemester.competencies.find(c => c.id === weighting.competenceId);
+                    const comp = semester.competencies.find(c => c.id === weighting.competenceId);
                     return (
                       <div key={gradeKey} className="flex items-center justify-between pl-3 border-l-2" style={{ borderColor: comp?.color || '#CBD5E1' }}>
                         <label htmlFor={`grade-${gradeKey}`} className="text-xs text-slate-500 flex items-center gap-1.5">
@@ -303,7 +303,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                           type="number"
                           min="0" max="20" step="0.25" placeholder="-"
                           value={grades[gradeKey] ?? ''}
-                          onChange={(e) => handleGradeChange(mod.id, weighting.competenceId, e.target.value)}
+                          onChange={(e) => onGradeChange(mod.id, weighting.competenceId, e.target.value)}
                           className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
                       </div>
                     );
@@ -321,7 +321,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
             {saes.map((mod: any) => {
               // Un module peut contribuer à plusieurs compétences
               const relevantWeightings = mod.weightings.filter((w: any) =>
-                activeSemester.competencies.some(c => c.id === w.competenceId)
+                semester.competencies.some(c => c.id === w.competenceId)
               );
 
               return (
@@ -331,7 +331,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                   </div>
                   {relevantWeightings.map((weighting: any) => {
                     const gradeKey = `${mod.id}-${weighting.competenceId}`;
-                    const comp = activeSemester.competencies.find(c => c.id === weighting.competenceId);
+                    const comp = semester.competencies.find(c => c.id === weighting.competenceId);
                     return (
                       <div key={gradeKey} className="flex items-center justify-between pl-3 border-l-2" style={{ borderColor: comp?.color || '#CBD5E1' }}>
                         <label htmlFor={`grade-${gradeKey}`} className="text-xs text-slate-500 flex items-center gap-1.5">
@@ -343,7 +343,7 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
                           type="number"
                           min="0" max="20" step="0.25" placeholder="-"
                           value={grades[gradeKey] ?? ''}
-                          onChange={(e) => handleGradeChange(mod.id, weighting.competenceId, e.target.value)}
+                          onChange={(e) => onGradeChange(mod.id, weighting.competenceId, e.target.value)}
                           className={`w-16 h-9 text-center text-sm font-bold border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder-slate-300 ${grades[gradeKey] !== undefined ? 'bg-white border-violet-200 text-violet-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`} />
                       </div>
                     );
