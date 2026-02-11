@@ -247,8 +247,16 @@ const CompetenceCard = ({ comp, semester, grades, onGradeChange }: any) => {
   const average = calculateCompetenceAverage(comp, semester, grades);
   const resources = semester.modules.filter((m: any) => m.type === ModuleType.RESOURCE && m.weightings.some((w: any) => w.competenceId === comp.id));
   const saes = semester.modules.filter((m: any) => m.type === ModuleType.SAE && m.weightings.some((w: any) => w.competenceId === comp.id));
-  const isEliminatory = average < 8 && Object.keys(grades).length > 0;
-  const hasNotes = Object.keys(grades).some(id => [...resources, ...saes].some(m => m.id === id));
+  const isEliminatory = average !== null && average < 8;
+
+  // Vérifier si on a au moins une note pour cette compétence
+  const hasNotes = Object.keys(grades).some(gradeKey => {
+    const match = gradeKey.match(/^(.+)-(C\d+\.\d+)$/);
+    if (!match) return false;
+    const moduleId = match[1];
+    const competenceId = match[2];
+    return competenceId === comp.id && [...resources, ...saes].some(m => m.id === moduleId);
+  });
 
   // Calculate Uniform Target for this competence (X for all empty fields)
   const uniformTarget = calculateUniformTargetGrade(comp, semester, grades);
