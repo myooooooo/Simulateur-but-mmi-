@@ -667,8 +667,8 @@ const App: React.FC = () => {
                         </div>
 
                         <div className="h-[350px] w-full" style={{ minHeight: '350px' }}>
-                          <ResponsiveContainer width="100%" height="100%" minHeight={350}>
-                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                          <ResponsiveContainer width="100%" height={350} minHeight={350}>
+                            <RadarChart cx="50%" cy="50%" outerRadius="70%" width={500} height={350} data={radarData}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} />
                               <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
@@ -692,8 +692,8 @@ const App: React.FC = () => {
                           </div>
                         </div>
                         <div className="h-[350px] w-full" style={{ minHeight: '350px' }}>
-                          <ResponsiveContainer width="100%" height="100%" minHeight={350}>
-                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={activeSemester.competencies.map(c => ({ subject: c.id, A: 0, fullMark: 20 }))}>
+                          <ResponsiveContainer width="100%" height={350} minHeight={350}>
+                            <RadarChart cx="50%" cy="50%" outerRadius="70%" width={500} height={350} data={activeSemester.competencies.map(c => ({ subject: c.id, A: 0, fullMark: 20 }))}>
                               <PolarGrid stroke="#E2E8F0" />
                               <PolarAngleAxis dataKey="subject" tick={{ fill: '#CBD5E1', fontSize: 10, fontWeight: 700 }} />
                               <PolarRadiusAxis angle={30} domain={[0, 20]} tick={false} axisLine={false} />
